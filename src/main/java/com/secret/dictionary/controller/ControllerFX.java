@@ -1,9 +1,9 @@
-package com.secret.dictionary.secretdictionarydesktop;
+package com.secret.dictionary.controller;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 
-public class HelloController {
+public class ControllerFX {
     @FXML
     private Label welcomeText;
 

@@ -61,7 +61,7 @@
                         <id>default-cli</id>
                         <configuration>
                             <mainClass>
-                                com.secret.dictionary.secretdictionarydesktop/com.secret.dictionary.secretdictionarydesktop.HelloApplication
+                                com.secret.dictionary.secretdictionarydesktop/com.secret.dictionary.Main
                             </mainClass>
                             <launcher>app</launcher>
                             <jlinkZipName>app</jlinkZipName>
