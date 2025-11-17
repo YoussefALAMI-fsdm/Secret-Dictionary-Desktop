@@ -1,0 +1,26 @@
+# le fichier docker-compose.yml est un fichier de configuration écrit en YAML utilisé par Docker Compose pour but de
+# définir et gérer plusieurs conteneurs Docker.
+# Il permet de décrire tous les services nécessaires à une application (backend, base de données, cache, etc.)
+
+# Ce fichier définit un environnement Docker pour faire tourner PostgreSQL
+# avec persistance des données ( c a d stockage d'une maniere permanante ).
+
+
+version: "3.9" # Version de Docker Compose
+
+services: # Tous les conteneurs (services) sont définis ici.
+  postgres: # On a un seul service nommé nommé postgres
+    image: postgres:16 # utilise l’image officielle PostgreSQL version 16 depuis Docker Hub.
+    container_name: dictionary_pg # Nommé ce conteneur avec dictionary_pg
+    restart: always # Permet au conteneur de redémarrer automatiquement s’il plante ou si la machine hôte redémarre.
+    environment:
+      POSTGRES_USER: FSDM # nom de l’utilisateur PostgreSQL.
+      POSTGRES_PASSWORD: IA # mot de passe de l’utilisateur.
+      POSTGRES_DB: dictionary   # création automatique ( si il n'existe pas ) de la BD nommé dictionary
+    ports:
+      - "5432:5432" # On definir le port par default sur 5432 pour permet au machine de communiquer avec la DB via ce port
+    volumes:
+      - pgdata:/var/lib/postgresql/data # Persistance des données dans un volume nommé "pgdata" a l'i
+
+volumes:
+  pgdata: # Defenir le volume de persitance ( celui si dessus )
