@@ -8,6 +8,8 @@ module com.secret.dictionary.secretdictionarydesktop {
     opens com.secret.dictionary.controller to javafx.fxml;
     opens com.secret.dictionary.app to javafx.fxml;
 
+    opens db.migration ; // Pour que flyway peut executer les scripts
+
     // Exports uniquement les packages que tu veux rendre visibles à d'autres modules (optionnel ici)
     exports com.secret.dictionary.controller;
     exports com.secret.dictionary.app;
