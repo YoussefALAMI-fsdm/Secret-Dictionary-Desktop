@@ -39,4 +39,16 @@ public class DataBase { // class util qui permet de creer la DB et gerer la conn
     public Connection getConnection () { // C'est la methode utile pour recuperer la connexion au instance BD creer
         return connection ;
     }
+
+    public String getURL() {
+        return URL;
+    }
+
+    public String getPASSWD() {
+        return PASSWD;
+    }
+
+    public String getUSER() {
+        return USER;
+    }
 }
