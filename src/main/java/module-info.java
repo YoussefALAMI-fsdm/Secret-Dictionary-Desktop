@@ -1,6 +1,7 @@
 module com.secret.dictionary.secretdictionarydesktop {
     requires javafx.controls;
     requires javafx.fxml;
+    requires java.sql; // Car la class DataBase est dans le meme projet
 
     // Ouvre les packages contenant les controllers pour FXMLLoader
     opens com.secret.dictionary.controller to javafx.fxml;
