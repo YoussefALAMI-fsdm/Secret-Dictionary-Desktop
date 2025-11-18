@@ -16,8 +16,6 @@ Une application JavaFX moderne et élégante pour la gestion de mots et définit
 
 - ✏️ **Modification** : Éditez facilement les mots existants
 
-- 📂 **Recherche par catégorie** : Explorez les mots par catégorie avec affichage en tableau
-
 - 🎨 **Interface moderne** : Design épuré avec des couleurs professionnelles et des animations
 
 <br>
@@ -40,21 +38,6 @@ Une application JavaFX moderne et élégante pour la gestion de mots et définit
 
 <br>
 
-## 📸 Aperçu
-
-L'application propose **4 onglets principaux** :
-
-1. **Rechercher** - Recherche de mots avec affichage détaillé
-
-2. **Ajouter** - Formulaire d'ajout de nouveaux mots
-
-3. **Modifier** - Édition des entrées existantes
-
-4. **Chercher par Catégorie** - Exploration par catégories avec tableau
-
-<br>
-
----
 
 <br>
 
