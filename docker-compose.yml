@@ -1,38 +1,29 @@
-# le fichier docker-compose.yml est un fichier de configuration écrit en YAML utilisé par Docker Compose pour but de
-# définir et gérer plusieurs conteneurs Docker.
-# Il permet de décrire tous les services nécessaires à une application (backend, base de données, cache, etc.)
+version: "3.9"
 
-# Ce fichier définit un environnement Docker pour faire tourner PostgreSQL
-# avec persistance des données ( c a d stockage d'une maniere permanante ).
-
-version: "3.9" # Version de Docker Compose
-
-services: # Tous les conteneurs (services) sont définis ici.
-  postgres: # Service PostgreSQL
-    image: postgres:16 # utilise l’image officielle PostgreSQL version 16 depuis Docker Hub.
-    container_name: dictionary_pg # nom du conteneur
-    restart: always # redémarrage automatique en cas de crash ou reboot de la machine
-    environment: # variables d’environnement pour PostgreSQL
-      POSTGRES_USER: FSDM # nom de l’utilisateur PostgreSQL
-      POSTGRES_PASSWORD: IA # mot de passe de l’utilisateur
-      POSTGRES_DB: dictionary # création automatique de la base "dictionary" si elle n'existe pas
+services:
+  postgres:
+    image: postgres:16
+    container_name: dictionary_pg
+    restart: always
+    environment:
+      POSTGRES_USER: FSDM
+      POSTGRES_PASSWORD: IA
+      POSTGRES_DB: dictionary
     ports:
-      - "5432:5432" # mapping du port PostgreSQL sur la machine hôte
+      - "5432:5432"
     volumes:
-      - pgdata:/var/lib/postgresql/data # persistance des données dans un volume nommé "pgdata"
-
-  app: # Service de l'application backend Java
-    build: . # construction de l'image depuis le Dockerfile à la racine du projet
-    container_name: dictionary_app # nom du conteneur
-    depends_on:
-      - postgres # ce conteneur démarre après PostgreSQL
-    environment: # variables d’environnement pour la connexion à la DB
-      DB_HOST: postgres # nom du service PostgreSQL
-      DB_PORT: 5432 # port PostgreSQL
-      DB_USER: FSDM # utilisateur PostgreSQL
-      DB_PASSWORD: IA # mot de passe
-      DB_NAME: dictionary # nom de la base
-    network_mode: "bridge" # type de réseau Docker (bridge par défaut)
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - dictionary-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U FSDM -d dictionary"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
-  pgdata: # volume Docker pour la persistance des données PostgreSQL
+  pgdata:
+
+networks:
+  dictionary-network:
+    driver: bridge

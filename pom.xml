@@ -39,21 +39,24 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- Ajout du depandance de PostgreSQL  -->
+        <!-- PostgreSQL Driver -->
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <version>42.7.3</version>
         </dependency>
 
-        <!-- Ajout du dependance :
-    Flyway : Outil de migration de base de données
-    Permet de versionner et d'automatiser les modifications de schéma
-    (création de tables, modifications de colonnes, scripts SQL, etc.)
-         -->
+        <!-- Flyway Core -->
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-core</artifactId>
+            <version>10.0.0</version>
+        </dependency>
+
+        <!-- ✅ AJOUT CRUCIAL : Flyway PostgreSQL Driver -->
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-database-postgresql</artifactId>
             <version>10.0.0</version>
         </dependency>
     </dependencies>
@@ -75,7 +78,6 @@
                 <version>0.0.8</version>
                 <executions>
                     <execution>
-                        <!-- Default configuration for running with: mvn clean javafx:run -->
                         <id>default-cli</id>
                         <configuration>
                             <mainClass>
