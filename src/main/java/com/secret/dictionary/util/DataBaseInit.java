@@ -10,11 +10,17 @@ import org.flywaydb.core.Flyway;
 
 public class DataBaseInit {
 
-public void init () {
+    private final DataBase db ;
+
+    public DataBaseInit ( DataBase db ) { // Injecter la DB a initialiser
+        this.db = db ;
+    }
+
+public  void init () {
 
     Flyway flayway = Flyway.configure()
             .locations("classpath:scripts") // Permet de localiser les scripts dans ressources
-            .dataSource("jdbc:postgresql://localhost:5432/dictionary","FSDM","IA") // Determier la DB source ( au quel appliquer les scripts )
+            .dataSource(db.getURL(),db.getUSER(),db.getPASSWD()) // Determier la DB source ( au quel appliquer les scripts )
             .load(); // Charge la configuration Flyway
 
     flayway.migrate() ; // Applique toutes les migrations qui n'ont pas encore été exécutées dans la DB dictionary
