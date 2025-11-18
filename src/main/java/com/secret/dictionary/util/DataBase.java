@@ -15,13 +15,13 @@ public class DataBase { // class util qui permet de creer la DB et gerer la conn
     private static DataBase instance ;
     private Connection connection ; //Si la connexion est static → elle n’est plus liée à l’instance → Singleton cassé.
 
-    private static final String url = "jdbc:postgresql://localhost:5432/dictionary" ; // JDBC ce connecte au BD PostgreSQL qui tourne en local ( dans un conteneur docker )
-    private static final String user = "FSDM" ;
-    private static final String passwd = "IA" ;
+    private static final String URL = "jdbc:postgresql://localhost:5432/dictionary" ; // JDBC ce connecte au BD PostgreSQL qui tourne en local ( dans un conteneur docker )
+    private static final String USER = "FSDM" ;
+    private static final String PASSWD = "IA" ;
 
     private DataBase()  {
         try {
-            connection = DriverManager.getConnection(url, user, passwd);
+            connection = DriverManager.getConnection(URL, USER, PASSWD);
         } catch ( SQLException e ) {
             System.err.println("Probleme lors du creation d'instance de connexion ( Constructeur DataBase ) ! ");
             e.printStackTrace();  // Affiche toute la trace de l'erreur
