@@ -39,7 +39,7 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- Ajout du dépandance de PostgreSQL -->
+        <!-- Ajout du dépandance de PostgreSQL  -->
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
