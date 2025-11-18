@@ -19,7 +19,7 @@ public class DataBaseInit {
 public  void init () {
 
     Flyway flayway = Flyway.configure()
-            .locations("classpath:scripts") // Permet de localiser les scripts dans ressources
+            .locations("classpath:com/secret/dictionary/scripts") // Permet de localiser les scripts dans ressources
             .dataSource(db.getURL(),db.getUSER(),db.getPASSWD()) // Determier la DB source ( au quel appliquer les scripts )
             .load(); // Charge la configuration Flyway
 
