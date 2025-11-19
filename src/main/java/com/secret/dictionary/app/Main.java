@@ -16,7 +16,7 @@
  *             DAO -> Service : car le service a besion du DAO afin qu'il peut appliquer la logique metier sur les données en utilisons les methode du DAO
  *             Service -> Controller FX : car le controller UI a besion du communiquer avec le Backend depuis le UI
  *
- * ⚠️ On injecte jamais des entité de données simple ( model , dto )
+ * ⚠ On injecte jamais des entité de données simple ( model , dto )
  * car l'injection ce fait pour des services et des utilitaire, pas juste des entité de données simple
  */
 
@@ -79,7 +79,7 @@ public class Main extends Application {
 
         MotServiceImp motService = new MotServiceImp(motDAO) ; // Injecter le dao au service afin qu'il l'utilise pour manipuler les données
 
-       // ControllerFX controlleur = new ControllerFX(motService) ; jamais utilisé !!! , car le fxml creer sont propre controller avec fx:cntroller
+        // ControllerFX controlleur = new ControllerFX(motService) ; jamais utilisé !!! , car le fxml creer sont propre controller avec fx:cntroller
 
         FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("/com/secret/dictionary/fxml/hello-view.fxml")); // le fxml/hello-view.fxml n'est pas suffisant ici car le compiler essaie de chercher dans le meme package que celui du class d'entrée ( com.secret.dictionary.app ) or .app ,n'existe pas dans ressources
 
@@ -89,13 +89,13 @@ public class Main extends Application {
 
         controlleur.setMotService(motService); // injecter le mot service dans le controller utiliser par le fxml afin qu'il l'utilse pour la communication UI <=> Backend
 
-        Scene scene = new Scene(parent, 320, 240);
+        Scene scene = new Scene(parent, 800, 600); // Taille adaptée
 
         scene.getStylesheets().add(  // Liason entre css et fxml
                 Main.class.getResource("/com/secret/dictionary/styles/style.css").toExternalForm()
         );
 
-        stage.setTitle("Developement fonctionnalite par aya");
+        stage.setTitle("Secret Dictionary - Gestion de Vocabulaire");
         stage.setScene(scene);
         stage.show();
     }

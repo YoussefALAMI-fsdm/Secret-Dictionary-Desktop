@@ -24,6 +24,6 @@ public  void init () {
             .load(); // Charge la configuration Flyway
 
     flayway.repair(); // répare l’historique si un script a été supprimé ou renommé.
-    // flayway.migrate() ; // Applique toutes les migrations qui n'ont pas encore été exécutées dans la DB dictionary
+    flayway.migrate() ; // Applique toutes les migrations qui n'ont pas encore été exécutées dans la DB dictionary
 }
 }
