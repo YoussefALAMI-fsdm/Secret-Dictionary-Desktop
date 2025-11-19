@@ -23,8 +23,8 @@
 package com.secret.dictionary.app;
 
 import com.secret.dictionary.controller.ControllerFX;
-import com.secret.dictionary.dao.MotDAO;
-import com.secret.dictionary.service.MotService;
+import com.secret.dictionary.dao.MotDAOImp;
+import com.secret.dictionary.service.MotServiceImp;
 import com.secret.dictionary.util.DataBase;
 import com.secret.dictionary.util.DataBaseInit;
 import javafx.application.Application;
@@ -34,8 +34,39 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.util.Iterator;
+import java.util.List;
 
+
+/*                        @Test Backend ( temporaire )
+public class Main {
+
+    public static void main () {
+        DataBase db = DataBase.getInstance() ; // Recuperer l'instance unique ( Singleton ) du BD
+
+        DataBaseInit dbInit = new DataBaseInit(db);  // Injction du DB dans le initialisateur du BD
+        dbInit.init() ; // 2. Lancer Flyway (chargement scripts V1, V2, V3... et executions des scripts nessecaire )
+
+        MotDAOImp motDAO = new MotDAOImp(db) ; // Injecté la DB au DAO pour quel l'utilise afin de ce connecté et executé les requetes
+
+        MotServiceImp motService = new MotServiceImp(motDAO) ; // Injecter le dao au service afin qu'il l'utilise pour manipuler les données
+
+        List<String> l = motService.getAllMots() ;
+
+        if ( l.isEmpty() ) {
+            System.out.println("Aucun mot n'est trouvée dans la DB !");
+        }
+        else {
+            Iterator<String> it = l.iterator() ;
+            while (it.hasNext()) {
+                System.out.println(it.next());
+            }
+        }
+    }
+}
+*/
 public class Main extends Application {
+
     @Override
     public void start(Stage stage) throws IOException {
 
@@ -44,9 +75,9 @@ public class Main extends Application {
         DataBaseInit dbInit = new DataBaseInit(db);  // Injction du DB dans le initialisateur du BD
         dbInit.init() ; // 2. Lancer Flyway (chargement scripts V1, V2, V3... et executions des scripts nessecaire )
 
-        MotDAO motDAO = new MotDAO(db) ; // Injecté la DB au DAO pour quel l'utilise afin de ce connecté et executé les requetes
+        MotDAOImp motDAO = new MotDAOImp(db) ; // Injecté la DB au DAO pour quel l'utilise afin de ce connecté et executé les requetes
 
-        MotService motService = new MotService(motDAO) ; // Injecter le dao au service afin qu'il l'utilise pour manipuler les données
+        MotServiceImp motService = new MotServiceImp(motDAO) ; // Injecter le dao au service afin qu'il l'utilise pour manipuler les données
 
        // ControllerFX controlleur = new ControllerFX(motService) ; jamais utilisé !!! , car le fxml creer sont propre controller avec fx:cntroller
 
