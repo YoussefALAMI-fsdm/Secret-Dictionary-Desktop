@@ -1,206 +1,91 @@
 @echo off
-chcp 65001 >nul
-setlocal enabledelayedexpansion
-
-REM Empêcher la fermeture automatique du terminal
-set "SCRIPT_RUNNING=1"
+REM ====================================================
+REM Script de démarrage pour Secret Dictionary (Windows)
+REM ====================================================
 
 echo.
-echo ================================
-echo  Secret-Dictionary-Desktop
-echo ================================
-echo.
-echo 🚀 Demarrage de l'application...
+echo ========================================
+echo   Secret Dictionary - Demarrage
+echo ========================================
 echo.
 
 REM Vérifier si Docker est installé
 where docker >nul 2>nul
 if %ERRORLEVEL% NEQ 0 (
-    echo [ERREUR] Docker n'est pas installe.
-    echo.
-    echo Solution : Installez Docker Desktop depuis :
-    echo https://www.docker.com/products/docker-desktop
-    echo.
-    echo Appuyez sur une touche pour fermer...
-    pause >nul
+    echo [ERREUR] Docker n'est pas installe ou pas dans le PATH.
+    echo Veuillez installer Docker Desktop : https://www.docker.com/products/docker-desktop
+    pause
     exit /b 1
 )
 
-echo [OK] Docker detecte
-echo.
-
-REM Vérifier si Docker est en cours d'exécution
-docker ps >nul 2>nul
+REM Vérifier si Java est installé
+where java >nul 2>nul
 if %ERRORLEVEL% NEQ 0 (
-    echo [ERREUR] Docker Desktop n'est pas demarre.
-    echo.
-    echo Solution : Lancez Docker Desktop et attendez qu'il soit pret.
-    echo Ensuite, relancez ce script.
-    echo.
-    echo Appuyez sur une touche pour fermer...
-    pause >nul
+    echo [ERREUR] Java n'est pas installe ou pas dans le PATH.
+    echo Veuillez installer Java 17+ : https://adoptium.net/
+    pause
     exit /b 1
 )
 
-echo [OK] Docker est en cours d'execution
+REM Afficher la version Java
+echo [INFO] Version Java detectee :
+java -version
 echo.
 
-REM Vérifier Docker Compose
-docker compose version >nul 2>nul
-if %ERRORLEVEL% NEQ 0 (
-    docker-compose --version >nul 2>nul
-    if %ERRORLEVEL% NEQ 0 (
-        echo [ERREUR] Docker Compose n'est pas disponible
-        echo.
-        echo Solution : Reinstallez Docker Desktop.
-        echo.
-        echo Appuyez sur une touche pour fermer...
-        pause >nul
-        exit /b 1
-    )
-    set DOCKER_COMPOSE=docker-compose
-) else (
-    set DOCKER_COMPOSE=docker compose
-)
-
-echo [OK] Docker Compose disponible
-echo.
-
-REM Vérifier si PostgreSQL est déjà en cours
-docker ps --format "{{.Names}}" | findstr /C:"dictionary_pg" >nul 2>nul
-if %ERRORLEVEL% EQU 0 (
-    echo [INFO] PostgreSQL est deja en cours d'execution
-    echo.
-    goto postgres_ready
-)
-
-REM Démarrer PostgreSQL
-echo [ACTION] Demarrage de PostgreSQL...
-echo.
-%DOCKER_COMPOSE% up -d postgres 2>&1
-
-if %ERRORLEVEL% NEQ 0 (
-    echo.
-    echo [ERREUR] Impossible de demarrer PostgreSQL
-    echo.
-    echo Solutions possibles :
-    echo - Le port 5432 est peut-etre deja utilise
-    echo - Verifiez docker-compose.yml
-    echo - Essayez : docker compose down
-    echo.
-    echo Appuyez sur une touche pour fermer...
-    pause >nul
-    exit /b 1
-)
-
-echo.
-echo [INFO] Attente de PostgreSQL...
-echo.
-
-REM Attendre que PostgreSQL soit prêt (30 tentatives max)
-set MAX_ATTEMPTS=30
-set ATTEMPT=0
-
-:wait_loop
-set /a ATTEMPT+=1
-
-%DOCKER_COMPOSE% exec -T postgres pg_isready -U FSDM -d dictionary >nul 2>nul
-if %ERRORLEVEL% EQU 0 (
-    echo [OK] PostgreSQL est pret !
-    echo.
-    goto postgres_ready
-)
-
-if %ATTEMPT% GEQ %MAX_ATTEMPTS% (
-    echo.
-    echo [ERREUR] Timeout : PostgreSQL n'a pas demarre dans les temps
-    echo.
-    echo Solutions :
-    echo - Consultez les logs : docker compose logs postgres
-    echo - Redemarrez : docker compose restart postgres
-    echo.
-    echo Appuyez sur une touche pour fermer...
-    pause >nul
-    exit /b 1
-)
-
-echo [INFO] PostgreSQL en cours de demarrage... (%ATTEMPT%/%MAX_ATTEMPTS%)
-timeout /t 2 /nobreak >nul
-goto wait_loop
-
-:postgres_ready
-
-REM Configurer les variables d'environnement
-set DB_URL=jdbc:postgresql://localhost:5432/dictionary
-set DB_USER=FSDM
-set DB_PASSWORD=IA
-
-echo [ACTION] Configuration de la connexion database...
-echo - URL  : %DB_URL%
-echo - User : %DB_USER%
-echo.
-
-REM Vérifier Maven
+REM Vérifier si Maven est installé (sinon utiliser mvnw)
 where mvn >nul 2>nul
 if %ERRORLEVEL% EQU 0 (
-    echo [OK] Maven detecte
-    echo.
-    echo [ACTION] Compilation et lancement de l'application...
-    echo.
-    echo ================================================================
-    echo.
-    call mvn clean javafx:run
-    set MVN_EXIT=%ERRORLEVEL%
+    set MVN_CMD=mvn
+    echo [INFO] Maven detecte : utilisation de Maven
 ) else (
-    if exist "mvnw.cmd" (
-        echo [INFO] Maven non installe, utilisation du wrapper...
-        echo.
-        echo [ACTION] Compilation et lancement de l'application...
-        echo.
-        echo ================================================================
-        echo.
-        call mvnw.cmd clean javafx:run
-        set MVN_EXIT=%ERRORLEVEL%
-    ) else (
-        echo.
-        echo [ERREUR] Ni Maven ni le wrapper Maven n'ont ete trouves
-        echo.
-        echo Solution : Installez Maven depuis :
-        echo https://maven.apache.org/download.cgi
-        echo.
-        echo Ou assurez-vous que mvnw.cmd existe dans le projet.
-        echo.
-        echo Appuyez sur une touche pour fermer...
-        pause >nul
-        exit /b 1
-    )
+    set MVN_CMD=mvnw.cmd
+    echo [INFO] Maven non detecte : utilisation de Maven Wrapper
 )
 
-echo.
-echo ================================================================
-echo.
+REM Démarrer Docker PostgreSQL
+echo [ETAPE 1/3] Demarrage de la base de donnees PostgreSQL...
+docker-compose up -d
 
-if %MVN_EXIT% NEQ 0 (
-    echo [ERREUR] L'application s'est terminee avec des erreurs
-    echo.
-    echo Appuyez sur une touche pour continuer...
-    pause >nul
-) else (
-    echo [OK] Application terminee normalement
-    echo.
+REM Attendre que PostgreSQL soit prêt
+echo [INFO] Attente de la disponibilite de PostgreSQL...
+timeout /t 5 /nobreak >nul
+
+REM Vérifier si PostgreSQL est prêt
+docker exec secret-dictionary-db pg_isready -U FSDM -d dictionary >nul 2>nul
+if %ERRORLEVEL% NEQ 0 (
+    echo [AVERTISSEMENT] PostgreSQL n'est pas encore pret, attente supplementaire...
+    timeout /t 5 /nobreak >nul
 )
 
+echo [OK] PostgreSQL est pret !
 echo.
-set /p STOP_PG="Voulez-vous arreter PostgreSQL ? (o/N) : "
 
-if /i "!STOP_PG!"=="o" (
-    echo.
-    echo [ACTION] Arret de PostgreSQL...
-    %DOCKER_COMPOSE% down
+REM Compiler l'application (optionnel, décommenter si nécessaire)
+REM echo [ETAPE 2/3] Compilation de l'application...
+REM %MVN_CMD% clean compile
+REM if %ERRORLEVEL% NEQ 0 (
+REM     echo [ERREUR] Echec de la compilation
+REM     pause
+REM     exit /b 1
+REM )
+REM echo.
+
+REM Lancer l'application JavaFX
+echo [ETAPE 2/3] Lancement de l'application JavaFX...
+echo.
+%MVN_CMD% javafx:run
+
+REM Si l'application se ferme, proposer d'arrêter Docker
+echo.
+echo ========================================
+echo   Application fermee
+echo ========================================
+echo.
+set /p STOP_DOCKER="Voulez-vous arreter PostgreSQL ? (o/n) : "
+if /i "%STOP_DOCKER%"=="o" (
+    echo [INFO] Arret de PostgreSQL...
+    docker-compose down
     echo [OK] PostgreSQL arrete
-    echo.
 )
 
-echo.
-echo Appuyez sur une touche pour fermer...
-pause >nul
+pause
