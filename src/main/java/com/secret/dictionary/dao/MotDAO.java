@@ -7,4 +7,6 @@ import java.util.List;
 public interface MotDAO {
 
     List<String> findAllMot () throws DAOExeption ;
+    boolean save ( Mot m ) throws DAOExeption ;
+    Mot findWByMot( Mot m ) throws DAOExeption ;
 }

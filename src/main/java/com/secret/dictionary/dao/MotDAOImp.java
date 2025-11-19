@@ -37,4 +37,46 @@ public class MotDAOImp implements MotDAO { // Defenir le CRUD complet ( create, 
         }
         return mots ; // retourne list vide si non trouvé
     }
+
+    @Override
+    public boolean save(Mot m) throws DAOExeption {
+
+        String sql = "INSERT INTO mots(mot,def) VALUES(?,?);" ;
+
+        try ( PreparedStatement ps = connexion.prepareStatement(sql)) {
+            ps.setString(1,m.getMot());
+            ps.setString(2,m.getDefinition());
+
+            int n = ps.executeUpdate() ;
+
+            if ( n > 0 ) // le nbr de ligne affecté ( inserer )
+                return true ;
+
+        }catch ( SQLException e ) {
+            throw new DAOExeption("Erreur lors d'ajout du mot ( save )",e) ;
+        }
+        return false ;
+    }
+
+    @Override
+    public Mot findWByMot(Mot m) throws DAOExeption {
+
+        String sql = "SELECT * FROM mots WHERE mot = ?;" ;
+
+        try( PreparedStatement ps = connexion.prepareStatement(sql) ) {
+
+            ps.setString(1,m.getMot());
+            ResultSet rs = ps.executeQuery() ;
+            if ( rs.next() ) {
+                m.setId(rs.getInt("id"));
+                m.setDefinition(rs.getString("def"));
+                return m ;
+            }
+            else
+                return null ;
+
+        }catch (SQLException e) {
+            throw new DAOExeption("Erreur lors du recherche de mot ( findByMot ) ",e) ;
+        }
+    }
 }
