@@ -90,6 +90,11 @@ public class Main extends Application {
         controlleur.setMotService(motService); // injecter le mot service dans le controller utiliser par le fxml afin qu'il l'utilse pour la communication UI <=> Backend
 
         Scene scene = new Scene(parent, 320, 240);
+
+        scene.getStylesheets().add(  // Liason entre css et fxml
+                Main.class.getResource("/com/secret/dictionary/styles/style.css").toExternalForm()
+        );
+
         stage.setTitle("Developement fonctionnalite par aya");
         stage.setScene(scene);
         stage.show();
