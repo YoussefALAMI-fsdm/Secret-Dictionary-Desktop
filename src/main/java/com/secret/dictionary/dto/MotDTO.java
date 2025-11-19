@@ -25,4 +25,5 @@ public class MotDTO { // Data transfer object : transfert de données entre serv
         this.mot = mot ;
         this.definition = definition ;
     }
+
 }

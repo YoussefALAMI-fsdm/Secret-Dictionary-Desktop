@@ -35,5 +35,4 @@ public class Mot { // C'est la class model qui permet de représenter les donné
         this.mot = mot ;
         this.definition = definition ;
    }
-
 }
