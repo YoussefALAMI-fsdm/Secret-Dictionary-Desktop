@@ -1,29 +1,25 @@
-version: "3.9"
+version: '3.8'
 
 services:
   postgres:
-    image: postgres:16
-    container_name: dictionary_pg
-    restart: always
-    environment:
-      POSTGRES_USER: FSDM
-      POSTGRES_PASSWORD: IA
-      POSTGRES_DB: dictionary
+    image: postgres:16-alpine
+    container_name: secret-dictionary-db
+    restart: unless-stopped
     ports:
       - "5432:5432"
+    environment:
+      POSTGRES_DB: dictionary
+      POSTGRES_USER: FSDM
+      POSTGRES_PASSWORD: IA
     volumes:
-      - pgdata:/var/lib/postgresql/data
-    networks:
-      - dictionary-network
+      # Persister les données entre les redémarrages
+      - postgres_data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U FSDM -d dictionary"]
-      interval: 10s
-      timeout: 5s
+      interval: 5s
+      timeout: 3s
       retries: 5
 
 volumes:
-  pgdata:
-
-networks:
-  dictionary-network:
-    driver: bridge
+  postgres_data:
+    driver: local
