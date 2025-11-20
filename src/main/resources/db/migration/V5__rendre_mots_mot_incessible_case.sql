@@ -2,5 +2,5 @@
 CREATE EXTENSION IF NOT EXISTS citext;
 
 -- Changer le type de la colonne mot pour qu'elle soit insensible à la casse
-ALTER TABLE mot
+ALTER TABLE mots
     ALTER COLUMN mot TYPE citext;
