@@ -94,7 +94,7 @@ public class ControllerFX {
 
         if (isMenuVisible) {
             // Calculer la hauteur du menu pour déplacer les boutons
-            double menuHeight = 180; // Ajuster selon le nombre de boutons
+            double menuHeight = 5; // Ajuster selon le nombre de boutons
             ttFavoris.setToY(menuHeight);
             ttNouveau.setToY(menuHeight);
         } else {
