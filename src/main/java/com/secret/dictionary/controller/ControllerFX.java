@@ -111,6 +111,7 @@ public class ControllerFX {
     // AFFICHER LES DÉTAILS D'UN MOT
     // ========================================
     private void afficherDetailsMot(String mot) {
+
         if (motService == null) return;
 
         MotDTO dto = new MotDTO(mot, null);
