@@ -9,4 +9,5 @@ public interface MotDAO {
     List<String> findAllMot () throws DAOExeption ;
     boolean save ( Mot m ) throws DAOExeption ;
     Mot findWByMot( Mot m ) throws DAOExeption ;
+    List<String> getListMot ( String mot ) throws DAOExeption ;
 }

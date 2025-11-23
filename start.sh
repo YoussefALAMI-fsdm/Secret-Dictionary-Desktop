@@ -1,123 +1,100 @@
 #!/bin/bash
 
 # ====================================================
-# Script de démarrage pour Secret Dictionary (Linux/macOS)
+# Script de démarrage pour Secret Dictionary
 # ====================================================
 
-echo ""
-echo "========================================"
-echo "  Secret Dictionary - Démarrage"
-echo "========================================"
-echo ""
-
-# Couleurs pour les messages
+# Couleurs
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
-NC='\033[0m' # No Color
+CYAN='\033[0;36m'
+NC='\033[0m'
 
-# Fonction pour afficher les messages
-error() {
-    echo -e "${RED}[ERREUR]${NC} $1"
-}
+echo ""
+echo -e "${CYAN}========================================${NC}"
+echo -e "${CYAN}  Secret Dictionary - Démarrage${NC}"
+echo -e "${CYAN}========================================${NC}"
+echo ""
 
-info() {
-    echo -e "${BLUE}[INFO]${NC} $1"
-}
-
-success() {
-    echo -e "${GREEN}[OK]${NC} $1"
-}
-
-warning() {
-    echo -e "${YELLOW}[AVERTISSEMENT]${NC} $1"
-}
-
-# Vérifier si Docker est installé
-if ! command -v docker &> /dev/null; then
-    error "Docker n'est pas installé ou pas dans le PATH."
-    echo "Veuillez installer Docker : https://docs.docker.com/get-docker/"
-    exit 1
-fi
-
-# Vérifier si Docker Compose est installé
-if ! command -v docker-compose &> /dev/null && ! docker compose version &> /dev/null; then
-    error "Docker Compose n'est pas installé."
-    echo "Veuillez installer Docker Compose : https://docs.docker.com/compose/install/"
-    exit 1
-fi
-
-# Déterminer la commande Docker Compose
-if command -v docker-compose &> /dev/null; then
-    DOCKER_COMPOSE="docker-compose"
-else
-    DOCKER_COMPOSE="docker compose"
-fi
-
-# Vérifier si Java est installé
+# ============================================
+# 1. Vérifier Java
+# ============================================
 if ! command -v java &> /dev/null; then
-    error "Java n'est pas installé ou pas dans le PATH."
-    echo "Veuillez installer Java 17+ : https://adoptium.net/"
+    echo -e "${RED}❌ Java n'est pas installé${NC}"
+    echo "   Installez Java 17+ : sudo apt install openjdk-17-jdk"
     exit 1
 fi
 
-# Afficher la version Java
-info "Version Java détectée :"
-java -version
+# Extraire la version Java
+JAVA_VERSION=$(java -version 2>&1 | grep -oP 'version "\K[0-9]+')
+
+if [ "$JAVA_VERSION" -lt 17 ]; then
+    echo -e "${RED}❌ Java $JAVA_VERSION détecté, mais Java 17+ est requis${NC}"
+    echo ""
+    echo "Solutions :"
+    echo "  → Installer Java 17 : sudo apt install openjdk-17-jdk"
+    echo "  → Ou modifier pom.xml pour utiliser Java $JAVA_VERSION"
+    exit 1
+fi
+
+echo -e "${GREEN}✅ Java $JAVA_VERSION détecté${NC}"
 echo ""
 
-# Déterminer la commande Maven
-if command -v mvn &> /dev/null; then
-    MVN_CMD="mvn"
-    info "Maven détecté : utilisation de Maven"
+# ============================================
+# 2. Vérifier Docker
+# ============================================
+if ! command -v docker &> /dev/null; then
+    echo "❌ Docker n'est pas installé"
+    exit 1
+fi
+
+# ============================================
+# 3. Démarrer PostgreSQL
+# ============================================
+echo "🔧 Démarrage de PostgreSQL..."
+
+if command -v docker-compose &> /dev/null; then
+    docker-compose up -d
 else
-    MVN_CMD="./mvnw"
-    info "Maven non détecté : utilisation de Maven Wrapper"
-    # Rendre mvnw exécutable si nécessaire
+    docker compose up -d
+fi
+
+echo "⏳ Attente de PostgreSQL (10 secondes)..."
+sleep 10
+
+echo "✅ PostgreSQL prêt !"
+echo ""
+
+# ============================================
+# 4. Lancer l'application
+# ============================================
+echo "🚀 Lancement de l'application..."
+echo ""
+
+if command -v mvn &> /dev/null; then
+    mvn javafx:run
+else
     chmod +x mvnw
+    ./mvnw javafx:run
 fi
 
-# Démarrer Docker PostgreSQL
-echo "[ÉTAPE 1/3] Démarrage de la base de données PostgreSQL..."
-$DOCKER_COMPOSE up -d
-
-# Attendre que PostgreSQL soit prêt
-info "Attente de la disponibilité de PostgreSQL..."
-sleep 5
-
-# Vérifier si PostgreSQL est prêt
-if ! docker exec secret-dictionary-db pg_isready -U FSDM -d dictionary &> /dev/null; then
-    warning "PostgreSQL n'est pas encore prêt, attente supplémentaire..."
-    sleep 5
-fi
-
-success "PostgreSQL est prêt !"
-echo ""
-
-# Compiler l'application (optionnel, décommenter si nécessaire)
-# echo "[ÉTAPE 2/3] Compilation de l'application..."
-# $MVN_CMD clean compile
-# if [ $? -ne 0 ]; then
-#     error "Échec de la compilation"
-#     exit 1
-# fi
-# echo ""
-
-# Lancer l'application JavaFX
-echo "[ÉTAPE 2/3] Lancement de l'application JavaFX..."
-echo ""
-$MVN_CMD javafx:run
-
-# Si l'application se ferme, proposer d'arrêter Docker
+# ============================================
+# 5. Nettoyage
+# ============================================
 echo ""
 echo "========================================"
 echo "  Application fermée"
 echo "========================================"
 echo ""
-read -p "Voulez-vous arrêter PostgreSQL ? (o/n) : " STOP_DOCKER
-if [ "$STOP_DOCKER" = "o" ] || [ "$STOP_DOCKER" = "O" ]; then
-    info "Arrêt de PostgreSQL..."
-    $DOCKER_COMPOSE down
-    success "PostgreSQL arrêté"
+read -p "Arrêter PostgreSQL ? (o/n) : " STOP
+
+if [ "$STOP" = "o" ] || [ "$STOP" = "O" ]; then
+    if command -v docker-compose &> /dev/null; then
+        docker-compose down
+    else
+        docker compose down
+    fi
+    echo "✅ PostgreSQL arrêté"
 fi

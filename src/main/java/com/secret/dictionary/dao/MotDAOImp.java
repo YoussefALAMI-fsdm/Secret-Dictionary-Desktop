@@ -13,7 +13,7 @@ public class MotDAOImp implements MotDAO { // Defenir le CRUD complet ( create, 
                      // l'acces et la communication avec la DB
                      // le transfer entre DTO <=> DAO ce fait dans le service ( Controller logique )
 
-    private Connection connexion ;
+    private final Connection connexion ;
 
     public MotDAOImp(DataBase db ) {
 
@@ -67,6 +67,7 @@ public class MotDAOImp implements MotDAO { // Defenir le CRUD complet ( create, 
 
             ps.setString(1,m.getMot());
             ResultSet rs = ps.executeQuery() ;
+
             if ( rs.next() ) {
                 m.setId(rs.getInt("id"));
                 m.setDefinition(rs.getString("def"));
@@ -77,6 +78,36 @@ public class MotDAOImp implements MotDAO { // Defenir le CRUD complet ( create, 
 
         }catch (SQLException e) {
             throw new DAOExeption("Erreur lors du recherche de mot ( findByMot ) ",e) ;
+        }
+    }
+
+    @Override
+    public List<String> getListMot(String mot) throws DAOExeption {
+
+        String sql = "SELECT mot FROM mots " +
+                "WHERE mot % ? " +               // opérateur flou pg_trgm
+                "ORDER BY similarity(mot, ?) DESC " +
+                "LIMIT 10;" ;
+
+        try (PreparedStatement ps = connexion.prepareStatement(sql)) {
+            ps.setString(1, mot) ;
+            ps.setString(2, mot) ;
+
+            ResultSet rs = ps.executeQuery();
+
+            List<String> mots = new LinkedList<>();
+            while (rs.next()) {
+                mots.add(rs.getString("mot"));
+            }
+
+            if (mots.isEmpty()) {
+                return null ;
+            }
+
+            return mots;
+
+        } catch (SQLException e) {
+            throw new DAOExeption("Problème dans la recherche floue", e);
         }
     }
 }

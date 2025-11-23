@@ -77,4 +77,18 @@ public class MotServiceImp implements MotService { // Le controlleur logique ( f
             return null;
         }
     }
+
+    @Override
+    public List<String> getListMot(String mot) {
+
+        try {
+            List<String> mots = dao.getListMot(mot) ;
+            return mots ;
+        } catch (DAOExeption e) {
+            System.err.println("Probleme DAO : " + e.getMessage());
+            e.printStackTrace();
+            return Collections.emptyList();
+        }
+
+    }
 }

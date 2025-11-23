@@ -1,4 +1,5 @@
 @echo off
+chcp 65001 >nul
 REM ====================================================
 REM Script de démarrage pour Secret Dictionary (Windows)
 REM ====================================================
@@ -9,82 +10,95 @@ echo   Secret Dictionary - Demarrage
 echo ========================================
 echo.
 
-REM Vérifier si Docker est installé
-where docker >nul 2>nul
-if %ERRORLEVEL% NEQ 0 (
-    echo [ERREUR] Docker n'est pas installe ou pas dans le PATH.
-    echo Veuillez installer Docker Desktop : https://www.docker.com/products/docker-desktop
-    pause
-    exit /b 1
-)
-
-REM Vérifier si Java est installé
+REM ============================================
+REM 1. Verifier Java
+REM ============================================
 where java >nul 2>nul
 if %ERRORLEVEL% NEQ 0 (
-    echo [ERREUR] Java n'est pas installe ou pas dans le PATH.
-    echo Veuillez installer Java 17+ : https://adoptium.net/
+    echo [ERREUR] Java n'est pas installe
+    echo          Installez Java 17+ depuis : https://adoptium.net/
     pause
     exit /b 1
 )
 
-REM Afficher la version Java
-echo [INFO] Version Java detectee :
-java -version
+REM Extraire la version Java
+for /f "tokens=3" %%g in ('java -version 2^>^&1 ^| findstr /i "version"') do (
+    set JAVA_VER=%%g
+)
+set JAVA_VER=%JAVA_VER:"=%
+for /f "delims=. tokens=1" %%v in ("%JAVA_VER%") do set JAVA_MAJOR=%%v
+
+if %JAVA_MAJOR% LSS 17 (
+    echo [ERREUR] Java %JAVA_MAJOR% detecte, mais Java 17+ est requis
+    echo.
+    echo Solutions :
+    echo   ^> Installer Java 17 depuis : https://adoptium.net/
+    echo   ^> Ou modifier pom.xml pour utiliser Java %JAVA_MAJOR%
+    pause
+    exit /b 1
+)
+
+echo [OK] Java %JAVA_MAJOR% detecte
 echo.
 
-REM Vérifier si Maven est installé (sinon utiliser mvnw)
+REM ============================================
+REM 2. Verifier Docker
+REM ============================================
+where docker >nul 2>nul
+if %ERRORLEVEL% NEQ 0 (
+    echo [ERREUR] Docker n'est pas installe
+    echo          Installez Docker Desktop : https://www.docker.com/products/docker-desktop
+    pause
+    exit /b 1
+)
+
+REM ============================================
+REM 3. Demarrer PostgreSQL
+REM ============================================
+echo [INFO] Demarrage de PostgreSQL...
+
+where docker-compose >nul 2>nul
+if %ERRORLEVEL% EQU 0 (
+    docker-compose up -d
+) else (
+    docker compose up -d
+)
+
+echo [INFO] Attente de PostgreSQL (10 secondes)...
+timeout /t 10 /nobreak >nul
+
+echo [OK] PostgreSQL pret !
+echo.
+
+REM ============================================
+REM 4. Lancer l'application
+REM ============================================
+echo [INFO] Lancement de l'application...
+echo.
+
 where mvn >nul 2>nul
 if %ERRORLEVEL% EQU 0 (
-    set MVN_CMD=mvn
-    echo [INFO] Maven detecte : utilisation de Maven
+    mvn javafx:run
 ) else (
-    set MVN_CMD=mvnw.cmd
-    echo [INFO] Maven non detecte : utilisation de Maven Wrapper
+    mvnw.cmd javafx:run
 )
 
-REM Démarrer Docker PostgreSQL
-echo [ETAPE 1/3] Demarrage de la base de donnees PostgreSQL...
-docker-compose up -d
-
-REM Attendre que PostgreSQL soit prêt
-echo [INFO] Attente de la disponibilite de PostgreSQL...
-timeout /t 5 /nobreak >nul
-
-REM Vérifier si PostgreSQL est prêt
-docker exec secret-dictionary-db pg_isready -U FSDM -d dictionary >nul 2>nul
-if %ERRORLEVEL% NEQ 0 (
-    echo [AVERTISSEMENT] PostgreSQL n'est pas encore pret, attente supplementaire...
-    timeout /t 5 /nobreak >nul
-)
-
-echo [OK] PostgreSQL est pret !
-echo.
-
-REM Compiler l'application (optionnel, décommenter si nécessaire)
-REM echo [ETAPE 2/3] Compilation de l'application...
-REM %MVN_CMD% clean compile
-REM if %ERRORLEVEL% NEQ 0 (
-REM     echo [ERREUR] Echec de la compilation
-REM     pause
-REM     exit /b 1
-REM )
-REM echo.
-
-REM Lancer l'application JavaFX
-echo [ETAPE 2/3] Lancement de l'application JavaFX...
-echo.
-%MVN_CMD% javafx:run
-
-REM Si l'application se ferme, proposer d'arrêter Docker
+REM ============================================
+REM 5. Nettoyage
+REM ============================================
 echo.
 echo ========================================
 echo   Application fermee
 echo ========================================
 echo.
-set /p STOP_DOCKER="Voulez-vous arreter PostgreSQL ? (o/n) : "
-if /i "%STOP_DOCKER%"=="o" (
-    echo [INFO] Arret de PostgreSQL...
-    docker-compose down
+set /p STOP="Arreter PostgreSQL ? (o/n) : "
+if /i "%STOP%"=="o" (
+    where docker-compose >nul 2>nul
+    if %ERRORLEVEL% EQU 0 (
+        docker-compose down
+    ) else (
+        docker compose down
+    )
     echo [OK] PostgreSQL arrete
 )
 
