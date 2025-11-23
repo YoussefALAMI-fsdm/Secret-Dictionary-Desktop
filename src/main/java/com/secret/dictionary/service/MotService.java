@@ -19,4 +19,10 @@ public interface MotService {
     MotDTO getInfoMot ( MotDTO dto ) ; /** Prend un MotDTO en arguement
                                          * @return motDTO si trouvé , sinon return null
                                         */
+
+    List<String> getListMot ( String mot ) ;  /**
+                                               * @return une LinkedList<String> contenant tous les mots du dictionnaire..
+                                                *  ⚠️ Si aucun mot n'est trouvé , une liste vide (jamais null) est retournée
+                                                * => a verifier avec .isEmpty()
+                                                */
 }
