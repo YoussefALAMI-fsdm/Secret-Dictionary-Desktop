@@ -265,7 +265,8 @@ public class ControllerFX {
         TextArea txtDef = new TextArea();
         txtDef.setPromptText("Entrez la définition du mot...");
         txtDef.setStyle(
-                "-fx-background-color: #16213e; " +
+                "-fx-background-color: #b185db;  " +
+                        "-fx-control-inner-background: #16213e; "+
                         "-fx-text-fill: white; " +
                         "-fx-prompt-text-fill: #888; " +
                         "-fx-font-size: 13px; " +
