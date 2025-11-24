@@ -39,7 +39,7 @@ public class MotDAOImp implements MotDAO { // Defenir le CRUD complet ( create, 
     }
 
     @Override
-    public boolean save(Mot m) throws DAOExeption {
+    public boolean saveMot(Mot m) throws DAOExeption {
 
         String sql = "INSERT INTO mots(mot,def) VALUES(?,?);" ;
 
@@ -108,6 +108,25 @@ public class MotDAOImp implements MotDAO { // Defenir le CRUD complet ( create, 
 
         } catch (SQLException e) {
             throw new DAOExeption("Problème dans la recherche floue", e);
+        }
+    }
+
+    public boolean updateMot ( Mot ancien , Mot nouveau ) throws DAOExeption {
+
+        String sql = "UPDATE mots SET mot = ?, def = ? WHERE mot = ?;";
+
+        try ( PreparedStatement ps = connexion.prepareStatement(sql)) {
+
+            ps.setString(1,ancien.getMot());
+            ps.setString(2,nouveau.getMot());
+            ps.setString(3,nouveau.getDefinition());
+
+            int nbrligneAffecte = ps.executeUpdate() ;
+
+            return nbrligneAffecte > 0 ;
+
+        } catch (SQLException e) {
+            throw new DAOExeption("Problème dans la modification du mot", e);
         }
     }
 }
