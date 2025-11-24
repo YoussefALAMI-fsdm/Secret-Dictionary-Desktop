@@ -47,6 +47,9 @@ public class MainController {
             loadWordDetailsPanel();
             loadWordListPanel();
 
+            rootPane.applyCss();
+            rootPane.layout();
+
             // Configuration de la communication entre contrôleurs
             wordListController.setOnWordSelected(this::handleWordSelection);
             menuController.setMainController(this);

@@ -89,7 +89,7 @@ public class Main extends Application {
 
         Scene scene = new Scene(parent, 800, 600); // Taille adaptée
 
-        scene.getStylesheets().add(  // Liason entre css et fxml
+        scene.getStylesheets().add (  // Liason entre css et fxml
                 Main.class.getResource("/com/secret/dictionary/styles/main.css").toExternalForm()
         );
 
