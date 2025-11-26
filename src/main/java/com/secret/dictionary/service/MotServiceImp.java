@@ -17,11 +17,20 @@ public class MotServiceImp implements MotService { // Le controlleur logique ( f
     }
 
     public MotDTO entityToDTO ( Mot m ) {
-        return new MotDTO(m.getMot(),m.getDefinition()) ;
+        return new MotDTO( m.getMot(),
+                           m.getDefinition(),
+                           m.getCategorie(),
+                           m.getEmojie()
+        ) ;
     }
 
     public Mot dtoToEntity ( MotDTO dto ) {
-        return new Mot(-1,dto.mot(),dto.definition()) ; // -1 car on connu pas leur id ( vient d'UI )
+        return new Mot(-1,            // -1 car on connu pas leur id ( vient d'UI )
+                           dto.mot(),
+                           dto.definition(),
+                           dto.categorie(),
+                           dto.emojie()
+        ) ;
     }
 
     public List<String> getAllMots () {
