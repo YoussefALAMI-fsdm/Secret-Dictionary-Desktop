@@ -115,9 +115,9 @@ public class ControllerFX {
         MotDTO resultat = motService.getInfoMot(dto);
 
         if (resultat != null) {
-            wordTitle.setText(resultat.getMot());
-            definitionText.setText(resultat.getDefinition() != null ?
-                    resultat.getDefinition() : "Pas de définition disponible");
+            wordTitle.setText(resultat.mot());
+            definitionText.setText(resultat.definition() != null ?
+                    resultat.definition() : "Pas de définition disponible");
             synonymsText.setText("À venir...");
 
             vboxRight.setVisible(false);
@@ -506,12 +506,12 @@ public class ControllerFX {
             switch (resultat) {
                 case 1:
                     afficherSucces("✅ Mot ajouté",
-                            "Le mot '" + dto.getMot() + "' a été ajouté avec succès !");
+                            "Le mot '" + dto.mot() + "' a été ajouté avec succès !");
                     chargerTousLesMots();
                     break;
                 case 0:
                     afficherErreur("⚠️ Mot existant",
-                            "Le mot '" + dto.getMot() + "' existe déjà dans le dictionnaire.");
+                            "Le mot '" + dto.mot() + "' existe déjà dans le dictionnaire.");
                     break;
                 case -1:
                     afficherErreur("❌ Erreur",

@@ -21,7 +21,7 @@ public class MotServiceImp implements MotService { // Le controlleur logique ( f
     }
 
     public Mot dtoToEntity ( MotDTO dto ) {
-        return new Mot(-1,dto.getMot(),dto.getDefinition()) ; // -1 car on connu pas leur id ( vient d'UI )
+        return new Mot(-1,dto.mot(),dto.definition()) ; // -1 car on connu pas leur id ( vient d'UI )
     }
 
     public List<String> getAllMots () {
