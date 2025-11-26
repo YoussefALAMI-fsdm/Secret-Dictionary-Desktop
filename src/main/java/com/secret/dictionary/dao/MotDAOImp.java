@@ -133,6 +133,27 @@ public class MotDAOImp implements MotDAO { // Defenir le CRUD complet ( create, 
     }
 
     @Override
+    public int getID(String mot) throws DAOExeption {
+
+        String sql = "SELECT id FROM mots WHERE mot = ?;";
+
+        try ( PreparedStatement ps = connexion.prepareStatement(sql)) {
+
+            ps.setString(1,mot);
+            ResultSet rs = ps.executeQuery() ;
+
+            if ( rs.next() )
+                return rs.getInt("id");
+
+            return -1 ; // Cas de aucun ligne n'est trouvé
+
+        } catch ( SQLException e ) {
+            throw new DAOExeption("Probleme dans la recherche d'index d'un mot",e) ;
+        }
+
+    }
+
+    @Override
     public boolean addSynonyme(Mot mot1, Mot mot2) throws DAOExeption {
 
         String sql = "INSERT INTO mots_synonymes(mot_id,synonyme_id) VALUES(?,?);" ;
