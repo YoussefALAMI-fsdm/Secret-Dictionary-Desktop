@@ -4,12 +4,9 @@ import com.secret.dictionary.dao.DAOExeption;
 import com.secret.dictionary.dao.MotDAOImp;
 import com.secret.dictionary.dto.MotDTO;
 import com.secret.dictionary.model.Mot;
-import org.postgresql.util.PSQLException;
-import org.w3c.dom.Entity;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 public class MotServiceImp implements MotService { // Le controlleur logique ( fait aussi DAO <=> DTO )
 
@@ -20,11 +17,20 @@ public class MotServiceImp implements MotService { // Le controlleur logique ( f
     }
 
     public MotDTO entityToDTO ( Mot m ) {
-        return new MotDTO(m.getMot(),m.getDefinition()) ;
+        return new MotDTO( m.getMot(),
+                           m.getDefinition(),
+                           m.getCategorie(),
+                           m.getEmojie()
+        ) ;
     }
 
     public Mot dtoToEntity ( MotDTO dto ) {
-        return new Mot(-1,dto.getMot(),dto.getDefinition()) ; // -1 car on connu pas leur id ( vient d'UI )
+        return new Mot(-1,            // -1 car on connu pas leur id ( vient d'UI )
+                           dto.mot(),
+                           dto.definition(),
+                           dto.categorie(),
+                           dto.emojie()
+        ) ;
     }
 
     public List<String> getAllMots () {
@@ -44,7 +50,7 @@ public class MotServiceImp implements MotService { // Le controlleur logique ( f
         Mot m = dtoToEntity(dto);
 
         try {
-            boolean resultat = dao.save(m);
+            boolean resultat = dao.saveMot(m);
 
             if (resultat)  // car .save(m) return true si bien
                 return 1;
@@ -89,6 +95,20 @@ public class MotServiceImp implements MotService { // Le controlleur logique ( f
             e.printStackTrace();
             return Collections.emptyList();
         }
+    }
 
+    @Override
+    public boolean updateMot ( MotDTO ancien , MotDTO nouveau ) {
+
+        try {
+             Mot m1 = dtoToEntity(ancien) ;
+            Mot m2 = dtoToEntity(nouveau) ;
+            return dao.updateMot(m1,m2) ;
+
+        } catch ( DAOExeption e ) {
+            System.err.println("Probleme DAO : " + e.getMessage());
+            e.printStackTrace();
+            return false ;
+        }
     }
 }

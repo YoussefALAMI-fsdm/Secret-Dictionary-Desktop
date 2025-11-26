@@ -25,4 +25,5 @@ public interface MotService {
                                                 *  ⚠️ Si aucun mot n'est trouvé , une liste vide (jamais null) est retournée
                                                 * => a verifier avec .isEmpty()
                                                 */
+    boolean updateMot ( MotDTO ancien , MotDTO nouveau ) ;
 }

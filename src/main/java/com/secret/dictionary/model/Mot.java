@@ -5,6 +5,8 @@ public class Mot { // C'est la class model qui permet de représenter les donné
     int id ;
     String mot ;
     String definition ;
+    String categorie ;
+    String emojie ;
 
     public int getId() {
         return id;
@@ -30,9 +32,27 @@ public class Mot { // C'est la class model qui permet de représenter les donné
         this.mot = mot;
     }
 
-   public Mot ( int id , String mot , String definition ) {
+   public Mot ( int id , String mot , String definition , String categorie , String emojie ) {
         this.id = id ;
         this.mot = mot ;
         this.definition = definition ;
+        this.categorie = categorie ;
+        this.emojie = emojie ;
    }
+
+    public String getCategorie() {
+        return categorie;
+    }
+
+    public String getEmojie() {
+        return emojie;
+    }
+
+    public void setCategorie(String categorie) {
+        this.categorie = categorie;
+    }
+
+    public void setEmojie(String emojie) {
+        this.emojie = emojie;
+    }
 }
