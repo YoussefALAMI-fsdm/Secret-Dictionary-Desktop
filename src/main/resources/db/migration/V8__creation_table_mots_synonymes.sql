@@ -6,5 +6,3 @@ CREATE TABLE IF NOT EXISTS mots_synonymes (
     CONSTRAINT fk_synonyme FOREIGN KEY (synonyme_id) REFERENCES mots(id) ON DELETE CASCADE, -- à la ligne supprimée dans la table parent seront automatiquement supprimées.
     CONSTRAINT chk_not_self CHECK (mot_id <> synonyme_id)
 );
-
-

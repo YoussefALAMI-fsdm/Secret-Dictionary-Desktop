@@ -11,5 +11,9 @@ public interface MotDAO {
     Mot findWByMot( Mot m ) throws DAOExeption ;
     List<String> getListMot ( String mot ) throws DAOExeption ;
     boolean updateMot ( Mot ancien , Mot nouveau ) throws DAOExeption ;
+    boolean addSynonyme ( Mot mot1 , Mot mot2 ) throws DAOExeption ;
+    boolean addAntonyme ( Mot mot1 , Mot mot2 ) throws DAOExeption ;
+    List<Mot> getSynonymes ( Mot mot ) throws DAOExeption ;
+    List<Mot> getAntonymes ( Mot mot ) throws DAOExeption ;
 
 }
