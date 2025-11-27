@@ -1,7 +1,6 @@
 package com.secret.dictionary.service;
 
 import com.secret.dictionary.dto.MotDTO;
-import com.secret.dictionary.model.Mot;
 
 import java.util.List;
 
@@ -41,9 +40,15 @@ public interface MotService {
                                                   // @Return List<MotDTO> ( list des synonymes avec Info détaillé de chaque synonymes )
 
 
-    List<MotDTO> getMotAntonymes ( MotDTO mot ) ;  // @Return null : mot inexistant a de base , list vide : Synonymes not trouvé
+    List<MotDTO> getListAntonymes (MotDTO mot ) ;  // @Return null : mot inexistant a de base , list vide : Synonymes not trouvé
                                                   // @Return List<MotDTO> ( list des synonymes avec Info détaillé de chaque synonymes )
 
 
+    List<MotDTO> searchByCategorie ( MotDTO mot ) ; // @Return List<MotDTO> selon categorie
+                                                   // @ List vide sinon ( a verifier avec .isEmpty )
+
+
+    List<MotDTO> searchByEmojie ( MotDTO mot ) ; // @Return List<MotDTO> selon Emojie
+                                                    // @ List vide sinon ( a verifier avec .isEmpty )
 
 }
