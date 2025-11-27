@@ -73,6 +73,8 @@ public class MotDAOImp implements MotDAO { // Defenir le CRUD complet ( create, 
             if ( rs.next() ) {
                 m.setId(rs.getInt("id"));
                 m.setDefinition(rs.getString("def"));
+                m.setCategorie(rs.getString("categorie"));
+                m.setEmojie(rs.getString("emojie"));
                 return m ;
             }
             else
