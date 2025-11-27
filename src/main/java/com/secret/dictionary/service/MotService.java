@@ -35,6 +35,15 @@ public interface MotService {
                                                      //@ 0 si mot1 ou mot2 n'existe pas , 1 si bien ajouter
 
     int addAntonyme (MotDTO mot1 , MotDTO mot2 ) ; // @return -1 si un probleme dans la DB ,
-    //@ 0 si mot1 ou mot2 n'existe pas , 1 si bien ajouter
+                                                  //@ 0 si mot1 ou mot2 n'existe pas , 1 si bien ajouter
+
+    List<MotDTO> getListSynonymes ( MotDTO mot ) ; // @Return null : mot inexistant a de base , list vide : Synonymes not trouvé
+                                                  // @Return List<MotDTO> ( list des synonymes avec Info détaillé de chaque synonymes )
+
+
+    List<MotDTO> getMotAntonymes ( MotDTO mot ) ;  // @Return null : mot inexistant a de base , list vide : Synonymes not trouvé
+                                                  // @Return List<MotDTO> ( list des synonymes avec Info détaillé de chaque synonymes )
+
+
 
 }

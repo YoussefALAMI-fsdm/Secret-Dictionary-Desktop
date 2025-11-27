@@ -6,6 +6,8 @@ import com.secret.dictionary.dto.MotDTO;
 import com.secret.dictionary.model.Mot;
 
 import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
 public class MotServiceImp implements MotService { // Le controlleur logique ( fait aussi DAO <=> DTO )
@@ -72,7 +74,7 @@ public class MotServiceImp implements MotService { // Le controlleur logique ( f
     @Override
     public MotDTO getInfoMot(MotDTO dto) {
         try {
-            Mot m = dao.findWByMot(dtoToEntity(dto));
+            Mot m = dao.findByMot(dtoToEntity(dto));
             if (m != null)
                 return entityToDTO(m);
             return null;
@@ -119,8 +121,8 @@ public class MotServiceImp implements MotService { // Le controlleur logique ( f
         Mot m2 = dtoToEntity(mot2);
 
         try {
-            int idMot1 = dao.getID(m1.getMot());
-            int idMot2 = dao.getID(m2.getMot());
+            int idMot1 = dao.getIDByMot(m1.getMot());
+            int idMot2 = dao.getIDByMot(m2.getMot());
 
             if ( idMot1 == -1 || idMot2 == -1 )
                 return 0 ; // Un des mots est non trouvé pour l'utiliser en association
@@ -153,8 +155,8 @@ public class MotServiceImp implements MotService { // Le controlleur logique ( f
         Mot m2 = dtoToEntity(mot2);
 
         try {
-            int idMot1 = dao.getID(m1.getMot());
-            int idMot2 = dao.getID(m2.getMot());
+            int idMot1 = dao.getIDByMot(m1.getMot());
+            int idMot2 = dao.getIDByMot(m2.getMot());
 
             if ( idMot1 == -1 || idMot2 == -1 )
                 return 0 ; // Un des mots est non trouvé pour l'utiliser en association
@@ -177,6 +179,96 @@ public class MotServiceImp implements MotService { // Le controlleur logique ( f
             System.err.println("Probleme DAO : " + e.getMessage());
             e.printStackTrace();
             return -1 ;
+        }
+    }
+
+    @Override
+    public List<MotDTO> getListSynonymes(MotDTO mot) {
+
+        Mot m = dtoToEntity(mot);
+
+       try {
+           int idMot = dao.getIDByMot(m.getMot());
+
+           if ( idMot == -1 )
+               return null ;
+
+           m.setId(idMot);
+
+           List<Mot> mots ;
+
+           try {
+
+               mots = dao.getSynonymes(m);
+
+               if ( mots != null ) {
+
+                   List<MotDTO> motsDTO = new LinkedList<>();
+
+                   Iterator<Mot> it = mots.iterator();
+
+                   while ( it.hasNext())
+                       motsDTO.add(entityToDTO(it.next()));
+
+                   return motsDTO ;
+               }
+               return Collections.emptyList();
+
+           } catch (DAOExeption e ) {
+               System.err.println("Probleme DAO : " + e.getMessage());
+               e.printStackTrace();
+               return Collections.emptyList();
+           }
+
+       } catch ( DAOExeption e ) {
+           System.err.println("Probleme DAO : " + e.getMessage());
+           e.printStackTrace();
+           return Collections.emptyList();
+       }
+    }
+
+    @Override
+    public List<MotDTO> getMotAntonymes(MotDTO mot) {
+
+        Mot m = dtoToEntity(mot);
+
+        try {
+            int idMot = dao.getIDByMot(m.getMot());
+
+            if ( idMot == -1 )
+                return null ;
+
+            m.setId(idMot);
+
+            List<Mot> mots ;
+
+            try {
+
+                mots = dao.getAntonymes(m);
+
+                if ( mots != null ) {
+
+                    List<MotDTO> motsDTO = new LinkedList<>();
+
+                    Iterator<Mot> it = mots.iterator();
+
+                    while ( it.hasNext())
+                        motsDTO.add(entityToDTO(it.next()));
+
+                    return motsDTO ;
+                }
+                return Collections.emptyList();
+
+            } catch ( DAOExeption e ) {
+                System.err.println("Probleme DAO : " + e.getMessage());
+                e.printStackTrace();
+                return Collections.emptyList();
+            }
+
+        } catch ( DAOExeption e ) {
+            System.err.println("Probleme DAO : " + e.getMessage());
+            e.printStackTrace();
+            return Collections.emptyList();
         }
     }
 }
