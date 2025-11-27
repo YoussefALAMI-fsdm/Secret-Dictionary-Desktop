@@ -4,7 +4,7 @@
  *
  * Pour cela on utilise l'injection des depandance
  * c a d pour chaque class on lui injecte ( fournie ) une instance de la class qui a lui besion pour fonctionner
- * au lieu de creer l’objet directement dans la classe ( c a d creer new DataBase() directement dans MotDAO )
+ * au lieu de creer l'objet directement dans la classe ( c a d creer new DataBase() directement dans MotDAO )
  * car cela casse l'architecture MVC dans la quel par exemple le MotDAO ne doit jamais connaitre comment DB est creer
  * il doit l'utiliser directement sans avoir les détaill
  *
@@ -22,7 +22,7 @@
 
 package com.secret.dictionary.app;
 
-import com.secret.dictionary.controller.ControllerFX;
+import com.secret.dictionary.controller.MainController;
 import com.secret.dictionary.dao.MotDAOImp;
 import com.secret.dictionary.service.MotServiceImp;
 import com.secret.dictionary.util.DataBase;
@@ -81,11 +81,11 @@ public class Main extends Application {
 
         // ControllerFX controlleur = new ControllerFX(motService) ; jamais utilisé !!! , car le fxml creer sont propre controller avec fx:cntroller
 
-        FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("/com/secret/dictionary/fxml/hello-view.fxml")); // le fxml/hello-view.fxml n'est pas suffisant ici car le compiler essaie de chercher dans le meme package que celui du class d'entrée ( com.secret.dictionary.app ) or .app ,n'existe pas dans ressources
+        FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("/com/secret/dictionary/fxml/main-view.fxml")); // le fxml/main-view.fxml n'est pas suffisant ici car le compiler essaie de chercher dans le meme package que celui du class d'entrée ( com.secret.dictionary.app ) or .app ,n'existe pas dans ressources
 
         Parent parent = fxmlLoader.load() ; // On creer tout d'abord le root + Controller
 
-        ControllerFX controlleur = fxmlLoader.getController() ; // Sans la ligne precedent le controller sera null car pas encore creer ( pas encore de load() )
+        MainController controlleur = fxmlLoader.getController() ; // Sans la ligne precedent le controller sera null car pas encore creer ( pas encore de load() )
 
         controlleur.setMotService(motService); // injecter le mot service dans le controller utiliser par le fxml afin qu'il l'utilse pour la communication UI <=> Backend
 
