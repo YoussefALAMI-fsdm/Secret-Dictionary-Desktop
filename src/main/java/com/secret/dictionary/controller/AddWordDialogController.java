@@ -11,11 +11,17 @@ import java.util.Optional;
 
 /**
  * Contrôleur pour le dialogue d'ajout de nouveau mot
+ * Version mise à jour avec categorie et emojie
  */
 public class AddWordDialogController {
 
     private final MotServiceImp motService;
     private final MainController mainController;
+
+    // Catégories disponibles
+    private static final String[] CATEGORIES = {
+            "General", "Verbe", "Adjectif", "Nom", "Adverbe", "Expression"
+    };
 
     public AddWordDialogController(MotServiceImp motService, MainController mainController) {
         this.motService = motService;
@@ -41,6 +47,7 @@ public class AddWordDialogController {
         Label titre = new Label("Créer une nouvelle entrée");
         titre.setStyle("-fx-font-size: 18px; -fx-text-fill: #c77dff; -fx-font-weight: bold;");
 
+        // ========== CHAMP MOT ==========
         VBox motBox = new VBox(5);
         Label lblMot = new Label("📝 Mot *");
         lblMot.setStyle("-fx-font-size: 14px; -fx-text-fill: #b185db; -fx-font-weight: bold;");
@@ -58,6 +65,7 @@ public class AddWordDialogController {
         txtMot.setPrefWidth(400);
         motBox.getChildren().addAll(lblMot, txtMot);
 
+        // ========== CHAMP DÉFINITION ==========
         VBox defBox = new VBox(5);
         Label lblDef = new Label("📖 Définition");
         lblDef.setStyle("-fx-font-size: 14px; -fx-text-fill: #b185db; -fx-font-weight: bold;");
@@ -65,23 +73,57 @@ public class AddWordDialogController {
         TextArea txtDef = new TextArea();
         txtDef.setPromptText("Entrez la définition du mot...");
         txtDef.setStyle(
-                "-fx-background-color: #b185db;  " +
-                        "-fx-control-inner-background: #16213e; "+
+                "-fx-background-color: #b185db; " +
+                        "-fx-control-inner-background: #16213e; " +
                         "-fx-text-fill: white; " +
                         "-fx-prompt-text-fill: #888; " +
                         "-fx-font-size: 13px; " +
                         "-fx-background-radius: 5;"
-
         );
         txtDef.setPrefRowCount(4);
         txtDef.setPrefWidth(400);
         txtDef.setWrapText(true);
         defBox.getChildren().addAll(lblDef, txtDef);
 
+        // ========== CHAMP CATÉGORIE ==========
+        VBox categorieBox = new VBox(5);
+        Label lblCategorie = new Label("🏷️ Catégorie");
+        lblCategorie.setStyle("-fx-font-size: 14px; -fx-text-fill: #b185db; -fx-font-weight: bold;");
+
+        ComboBox<String> cmbCategorie = new ComboBox<>();
+        cmbCategorie.getItems().addAll(CATEGORIES);
+        cmbCategorie.setValue("General");
+        cmbCategorie.setStyle(
+                "-fx-background-color: #16213e; " +
+                        "-fx-text-fill: white; " +
+                        "-fx-font-size: 14px; " +
+                        "-fx-background-radius: 5;"
+        );
+        cmbCategorie.setPrefWidth(400);
+        categorieBox.getChildren().addAll(lblCategorie, cmbCategorie);
+
+        // ========== CHAMP ÉMOJI ==========
+        VBox emojieBox = new VBox(5);
+        Label lblEmojie = new Label("😊 Émoji (optionnel)");
+        lblEmojie.setStyle("-fx-font-size: 14px; -fx-text-fill: #b185db; -fx-font-weight: bold;");
+
+        TextField txtEmojie = new TextField();
+        txtEmojie.setPromptText("Ex: 🎉 ✨ 💡");
+        txtEmojie.setStyle(
+                "-fx-background-color: #16213e; " +
+                        "-fx-text-fill: white; " +
+                        "-fx-prompt-text-fill: #888; " +
+                        "-fx-font-size: 18px; " +
+                        "-fx-padding: 10; " +
+                        "-fx-background-radius: 5;"
+        );
+        txtEmojie.setPrefWidth(400);
+        emojieBox.getChildren().addAll(lblEmojie, txtEmojie);
+
         Label info = new Label("* Champ obligatoire");
         info.setStyle("-fx-font-size: 11px; -fx-text-fill: #888; -fx-font-style: italic;");
 
-        content.getChildren().addAll(titre, motBox, defBox, info);
+        content.getChildren().addAll(titre, motBox, defBox, categorieBox, emojieBox, info);
         dialog.getDialogPane().setContent(content);
 
         dialog.getDialogPane().setStyle(
@@ -104,8 +146,16 @@ public class AddWordDialogController {
             if (dialogButton == btnAjouter) {
                 String mot = txtMot.getText().trim();
                 String def = txtDef.getText().trim();
+                String categorie = cmbCategorie.getValue();
+                String emojie = txtEmojie.getText().trim();
+
                 if (!mot.isEmpty()) {
-                    return new MotDTO(mot, def.isEmpty() ? null : def);
+                    return new MotDTO(
+                            mot,
+                            def.isEmpty() ? null : def,
+                            categorie,
+                            emojie.isEmpty() ? null : emojie
+                    );
                 }
             }
             return null;
@@ -118,12 +168,12 @@ public class AddWordDialogController {
             switch (resultat) {
                 case 1:
                     afficherSucces("✅ Mot ajouté",
-                            "Le mot '" + dto.getMot() + "' a été ajouté avec succès !");
+                            "Le mot '" + dto.mot() + "' a été ajouté avec succès !");
                     mainController.rafraichirListeMots();
                     break;
                 case 0:
                     afficherErreur("⚠️ Mot existant",
-                            "Le mot '" + dto.getMot() + "' existe déjà dans le dictionnaire.");
+                            "Le mot '" + dto.mot() + "' existe déjà dans le dictionnaire.");
                     break;
                 case -1:
                     afficherErreur("❌ Erreur",
