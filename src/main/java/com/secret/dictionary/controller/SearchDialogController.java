@@ -7,6 +7,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
@@ -77,6 +78,7 @@ public class SearchDialogController {
                         "-fx-padding: 0; " +
                         "-fx-fixed-cell-size: 35;"
         );
+        //"-fx-fixed-cell-size: " + ITEM_HEIGHT + ";"
 
         // Style des cellules
         suggestionList.setCellFactory(param -> new ListCell<String>() {
@@ -190,11 +192,17 @@ public class SearchDialogController {
                     suggestionList.setItems(items);
 
                     // Calcul hauteur optimale
-                    int itemCount = Math.min(suggestions.size(), 5);
+                    int itemCount = Math.min(suggestions.size(), 3);
                     double itemHeight = 35;
                     double calculatedHeight = itemCount * itemHeight + 2;
                     suggestionList.setPrefHeight(calculatedHeight);
                     suggestionList.setMinHeight(calculatedHeight);
+
+                    // ✅ Hauteur fixe pour 3 éléments + bordures
+                    //double fixedHeight = VISIBLE_ITEMS * ITEM_HEIGHT + 4;
+                    //suggestionList.setPrefHeight(fixedHeight);
+                    //suggestionList.setMaxHeight(fixedHeight);
+                    //suggestionList.setMinHeight(fixedHeight);
 
                     suggestionList.setVisible(true);
                     suggestionList.setManaged(true);
