@@ -41,11 +41,13 @@ public class MotDAOImp implements MotDAO { // Defenir le CRUD complet ( create, 
     @Override
     public boolean saveMot(Mot m) throws DAOExeption {
 
-        String sql = "INSERT INTO mots(mot,def) VALUES(?,?);" ;
+        String sql = "INSERT INTO mots(mot,def,categorie,emojie) VALUES(?,?,?,?);" ;
 
         try ( PreparedStatement ps = connexion.prepareStatement(sql)) {
             ps.setString(1,m.getMot());
             ps.setString(2,m.getDefinition());
+            ps.setString(3,m.getCategorie());
+            ps.setString(4,m.getEmojie());
 
             int n = ps.executeUpdate() ;
 
@@ -113,21 +115,42 @@ public class MotDAOImp implements MotDAO { // Defenir le CRUD complet ( create, 
 
     public boolean updateMot ( Mot ancien , Mot nouveau ) throws DAOExeption {
 
-        String sql = "UPDATE mots SET mot = ?, def = ? WHERE mot = ?;";
+        String sql = "UPDATE mots SET mot = ?, def = ?, categorie = ?, emojie = ? WHERE mot = ?;";
 
         try ( PreparedStatement ps = connexion.prepareStatement(sql)) {
 
-            ps.setString(1,ancien.getMot());
-            ps.setString(2,nouveau.getMot());
-            ps.setString(3,nouveau.getDefinition());
+            ps.setString(1,nouveau.getMot());
+            ps.setString(2,nouveau.getDefinition());
+            ps.setString(3,nouveau.getCategorie());
+            ps.setString(4,nouveau.getEmojie());
+            ps.setString(5,ancien.getMot());
 
-            int nbrligneAffecte = ps.executeUpdate() ;
-
-            return nbrligneAffecte > 0 ;
+            return ps.executeUpdate() > 0 ;
 
         } catch (SQLException e) {
             throw new DAOExeption("Problème dans la modification du mot", e);
         }
+    }
+
+    @Override
+    public int getID(String mot) throws DAOExeption {
+
+        String sql = "SELECT id FROM mots WHERE mot = ?;";
+
+        try ( PreparedStatement ps = connexion.prepareStatement(sql)) {
+
+            ps.setString(1,mot);
+            ResultSet rs = ps.executeQuery() ;
+
+            if ( rs.next() )
+                return rs.getInt("id");
+
+            return -1 ; // Cas de aucun ligne n'est trouvé
+
+        } catch ( SQLException e ) {
+            throw new DAOExeption("Probleme dans la recherche d'index d'un mot",e) ;
+        }
+
     }
 
     @Override

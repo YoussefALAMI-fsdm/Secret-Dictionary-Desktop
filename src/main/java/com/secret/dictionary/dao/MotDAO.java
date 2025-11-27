@@ -11,9 +11,10 @@ public interface MotDAO {
     Mot findWByMot( Mot m ) throws DAOExeption ;
     List<String> getListMot ( String mot ) throws DAOExeption ;
     boolean updateMot ( Mot ancien , Mot nouveau ) throws DAOExeption ;
-    boolean addSynonyme ( Mot mot1 , Mot mot2 ) throws DAOExeption ;
-    boolean addAntonyme ( Mot mot1 , Mot mot2 ) throws DAOExeption ;
-    List<Mot> getSynonymes ( Mot mot ) throws DAOExeption ;
-    List<Mot> getAntonymes ( Mot mot ) throws DAOExeption ;
+    int getID ( String mot) throws DAOExeption ; // puiseque mot est indexé et id est une PK alors l'id est indexéé avec indx_mot => meuilleur performance ( index-only scan )
+    boolean addSynonyme ( Mot mot1 , Mot mot2 ) throws DAOExeption ; // @ Mot doit avoir l'id valide
+    boolean addAntonyme ( Mot mot1 , Mot mot2 ) throws DAOExeption ; // @ Mot doit avoir l'id valide
+    List<Mot> getSynonymes ( Mot mot ) throws DAOExeption ; // @ Mot doit avoir l'id valide
+    List<Mot> getAntonymes ( Mot mot ) throws DAOExeption ; // @ Mot doit avoir l'id valide
 
 }

@@ -111,4 +111,72 @@ public class MotServiceImp implements MotService { // Le controlleur logique ( f
             return false ;
         }
     }
+
+    @Override
+    public int addSynonyme(MotDTO mot1, MotDTO mot2) {
+
+        Mot m1 = dtoToEntity(mot1);
+        Mot m2 = dtoToEntity(mot2);
+
+        try {
+            int idMot1 = dao.getID(m1.getMot());
+            int idMot2 = dao.getID(m2.getMot());
+
+            if ( idMot1 == -1 || idMot2 == -1 )
+                return 0 ; // Un des mots est non trouvé pour l'utiliser en association
+
+            m1.setId(idMot1); // Ajouter les ID dans l'entity Mot
+            m2.setId(idMot2);
+
+            try {
+                if ( dao.addSynonyme(m1,m2) ) // si true alors bien ajouter
+                    return 1 ;
+                else // Sinon ( les mots exist mais probleme de creation de synonyme )
+                    return -1 ;
+            } catch ( DAOExeption e )  {
+                System.err.println("Probleme DAO : " + e.getMessage());
+                e.printStackTrace();
+                return -1 ;
+            }
+
+        }catch ( DAOExeption e ) {
+            System.err.println("Probleme DAO : " + e.getMessage());
+            e.printStackTrace();
+            return -1 ;
+        }
+    }
+
+    @Override
+    public int addAntonyme (MotDTO mot1, MotDTO mot2) {
+
+        Mot m1 = dtoToEntity(mot1);
+        Mot m2 = dtoToEntity(mot2);
+
+        try {
+            int idMot1 = dao.getID(m1.getMot());
+            int idMot2 = dao.getID(m2.getMot());
+
+            if ( idMot1 == -1 || idMot2 == -1 )
+                return 0 ; // Un des mots est non trouvé pour l'utiliser en association
+
+            m1.setId(idMot1); // Ajouter les ID dans l'entity Mot
+            m2.setId(idMot2);
+
+            try {
+                if ( dao.addAntonyme(m1,m2) ) // si true alors bien ajouter
+                    return 1 ;
+                else // Sinon ( les mots exist mais probleme de creation de synonyme )
+                    return -1 ;
+            } catch ( DAOExeption e )  {
+                System.err.println("Probleme DAO : " + e.getMessage());
+                e.printStackTrace();
+                return -1 ;
+            }
+
+        }catch ( DAOExeption e ) {
+            System.err.println("Probleme DAO : " + e.getMessage());
+            e.printStackTrace();
+            return -1 ;
+        }
+    }
 }
