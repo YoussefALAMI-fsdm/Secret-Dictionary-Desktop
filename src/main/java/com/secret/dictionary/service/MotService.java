@@ -3,6 +3,7 @@ package com.secret.dictionary.service;
 import com.secret.dictionary.dto.MotDTO;
 
 import java.util.List;
+import java.util.Map;
 
 public interface MotService {
 
@@ -50,5 +51,9 @@ public interface MotService {
 
     List<MotDTO> searchByEmojie ( MotDTO mot ) ; // @Return List<MotDTO> selon Emojie
                                                     // @ List vide sinon ( a verifier avec .isEmpty )
+
+   Map<String,Integer> getMotCountParCategorie(); // @return une Map ( deja trié ) qui contient : Categorie comme clé et Nombre d'occurence comme valeur
+                                                  // @return Map vide si aucun categorie
+
 
 }
