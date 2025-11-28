@@ -54,7 +54,7 @@ public class WordListController {
                     // Émoji (si présent)
                     if (dto.emojie() != null && !dto.emojie().isEmpty()) {
                         Label emojieLabel = new Label(dto.emojie());
-                        emojieLabel.setStyle("-fx-font-size: 18px;");
+                        emojieLabel.setStyle("-fx-font-size: 18px; -fx-text-fill: white;"); //.
                         hbox.getChildren().add(emojieLabel);
                     }
 

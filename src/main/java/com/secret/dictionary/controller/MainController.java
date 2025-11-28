@@ -59,6 +59,7 @@ public class MainController {
             ScrollPane detailsView = detailsLoader.load();
             wordDetailsController = detailsLoader.getController();
             wordDetailsController.setMotService(motService);
+            wordDetailsController.setMainController(this);  // ✅ IMPORTANT: Passer mainController
             centerContainer.getChildren().add(detailsView);
 
             // Charger la liste des mots
@@ -127,6 +128,10 @@ public class MainController {
      * Cache la vue détails
      */
     private void hideDetailsView() {
+        // ✅ Appeler masquerDetails() avant de cacher le conteneur
+        if (wordDetailsController != null) {
+            wordDetailsController.masquerDetails();
+        }
         centerContainer.setVisible(false);
         centerContainer.setManaged(false);
     }
