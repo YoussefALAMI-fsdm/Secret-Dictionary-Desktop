@@ -2,6 +2,8 @@ package com.secret.dictionary.controller;
 
 import com.secret.dictionary.dto.MotDTO;
 import com.secret.dictionary.service.MotServiceImp;
+// ✅ SUPPRIMER l'import de EmojiUtils
+// import com.secret.dictionary.util.EmojiUtils;  // ❌ NE PAS IMPORTER
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -15,10 +17,6 @@ import javafx.scene.layout.VBox;
 
 import java.util.List;
 
-/**
- * Contrôleur pour la liste des mots (panneau droit)
- * Version mise à jour avec affichage des émojis dans la liste
- */
 public class WordListController {
 
     @FXML private VBox vboxRight;
@@ -38,7 +36,6 @@ public class WordListController {
 
     @FXML
     public void initialize() {
-        // Configuration du rendu personnalisé des cellules
         wordList.setCellFactory(param -> new ListCell<MotDTO>() {
             @Override
             protected void updateItem(MotDTO dto, boolean empty) {
@@ -51,10 +48,16 @@ public class WordListController {
                     HBox hbox = new HBox(10);
                     hbox.setAlignment(Pos.CENTER_LEFT);
 
-                    // Émoji (si présent)
+                    // ✅ Émoji en BLANC (sans EmojiUtils)
                     if (dto.emojie() != null && !dto.emojie().isEmpty()) {
                         Label emojieLabel = new Label(dto.emojie());
-                        emojieLabel.setStyle("-fx-font-size: 18px; -fx-text-fill: white;"); //.
+
+                        // ✅ Style blanc simple (sans police emoji colorée)
+                        emojieLabel.setStyle(
+                                "-fx-font-size: 18px; " +
+                                        "-fx-text-fill: white;"
+                        );
+
                         hbox.getChildren().add(emojieLabel);
                     }
 
@@ -70,7 +73,6 @@ public class WordListController {
             }
         });
 
-        // Écouter les sélections dans la liste
         wordList.getSelectionModel().selectedItemProperty().addListener(
                 (observable, oldValue, newValue) -> {
                     if (newValue != null && mainController != null) {
@@ -80,16 +82,12 @@ public class WordListController {
         );
     }
 
-    // ========================================
-    // CHARGER TOUS LES MOTS
-    // ========================================
     public void chargerTousLesMots() {
         if (motService == null) return;
 
         List<String> mots = motService.getAllMots();
         ObservableList<MotDTO> observableMots = FXCollections.observableArrayList();
 
-        // Récupérer les infos complètes pour chaque mot
         for (String mot : mots) {
             MotDTO dto = motService.getInfoMot(new MotDTO(mot, null, null, null));
             if (dto != null) {

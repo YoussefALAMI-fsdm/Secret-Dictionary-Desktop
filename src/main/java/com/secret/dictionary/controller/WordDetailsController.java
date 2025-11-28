@@ -2,16 +2,13 @@ package com.secret.dictionary.controller;
 
 import com.secret.dictionary.dto.MotDTO;
 import com.secret.dictionary.service.MotServiceImp;
+import com.secret.dictionary.util.EmojiUtils;  // ✅ IMPORT AJOUTÉ
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 
-/**
- * Contrôleur pour l'affichage des détails d'un mot
- * Version mise à jour avec categorie et emojie
- */
 public class WordDetailsController {
 
     @FXML private VBox vboxCenter;
@@ -20,12 +17,12 @@ public class WordDetailsController {
     @FXML private Label categorieLabel;
     @FXML private Label definitionText;
     @FXML private Label synonymsText;
-    @FXML private Button btnModifier;  // ✅ Ajout du bouton
+    @FXML private Button btnModifier;
 
     private MotServiceImp motService;
     private MainController mainController;
-    private UpdateWordDialogController updateWordDialogController;  // ✅ Ajout
-    private MotDTO motActuel;  // ✅ Pour stocker le mot affiché
+    private UpdateWordDialogController updateWordDialogController;
+    private MotDTO motActuel;
 
     public void setMotService(MotServiceImp motService) {
         this.motService = motService;
@@ -33,22 +30,22 @@ public class WordDetailsController {
 
     public void setMainController(MainController mainController) {
         this.mainController = mainController;
-        // ✅ Initialiser le contrôleur de dialogue de modification
         this.updateWordDialogController = new UpdateWordDialogController(motService, mainController);
     }
 
     @FXML
     public void initialize() {
-        // ✅ Masquer le bouton Modifier par défaut
+        // ✅ Configurer le label emoji pour affichage coloré
+        if (emojieLabel != null) {
+            EmojiUtils.configureEmojiLabel(emojieLabel, 48);
+        }
+
         if (btnModifier != null) {
             btnModifier.setVisible(false);
             btnModifier.setManaged(false);
         }
     }
 
-    // ========================================
-    // AFFICHER LES DÉTAILS D'UN MOT
-    // ========================================
     public void afficherDetailsMot(String mot) {
         if (motService == null) return;
 
@@ -56,47 +53,42 @@ public class WordDetailsController {
         MotDTO resultat = motService.getInfoMot(dto);
 
         if (resultat != null) {
-            // ✅ Stocker le mot actuel
             this.motActuel = resultat;
-
-            // Afficher le mot
             wordTitle.setText(resultat.mot());
 
-            // Afficher l'émoji s'il existe
+            // ✅ Afficher l'émoji avec couleurs natives
             if (resultat.emojie() != null && !resultat.emojie().trim().isEmpty()) {
                 emojieLabel.setText(resultat.emojie());
                 emojieLabel.setVisible(true);
                 emojieLabel.setManaged(true);
+
+                // ✅ Reconfigurer pour s'assurer que les couleurs s'affichent
+                EmojiUtils.configureEmojiLabel(emojieLabel, 48);
             } else {
                 emojieLabel.setVisible(false);
                 emojieLabel.setManaged(false);
             }
 
-            // Afficher la catégorie
             if (resultat.categorie() != null && !resultat.categorie().trim().isEmpty()) {
-                categorieLabel.setText("🏷 " + resultat.categorie());
+                categorieLabel.setText("🏷️ " + resultat.categorie());
                 categorieLabel.setVisible(true);
                 categorieLabel.setManaged(true);
             } else {
-                categorieLabel.setText("🏷 General");
+                categorieLabel.setText("🏷️ General");
                 categorieLabel.setVisible(true);
                 categorieLabel.setManaged(true);
             }
 
-            // Afficher la définition
             definitionText.setText(resultat.definition() != null ?
                     resultat.definition() : "Pas de définition disponible");
 
-            // Synonymes (à implémenter plus tard)
             synonymsText.setText("À venir...");
 
-            // ✅ AFFICHER LE BOUTON MODIFIER
             if (btnModifier != null) {
                 btnModifier.setVisible(true);
                 btnModifier.setManaged(true);
             }
 
-            // DEBUG
             System.out.println("=== Détails du mot ===");
             System.out.println("Mot: " + resultat.mot());
             System.out.println("Définition: " + resultat.definition());
@@ -109,9 +101,6 @@ public class WordDetailsController {
         }
     }
 
-    // ========================================
-    // ACTION DU BOUTON MODIFIER
-    // ========================================
     @FXML
     private void onModifierClick() {
         if (motActuel != null && updateWordDialogController != null) {
@@ -121,11 +110,7 @@ public class WordDetailsController {
         }
     }
 
-    // ========================================
-    // MASQUER LES DÉTAILS
-    // ========================================
     public void masquerDetails() {
-        // ✅ Masquer le bouton quand on cache les détails
         if (btnModifier != null) {
             btnModifier.setVisible(false);
             btnModifier.setManaged(false);
@@ -133,9 +118,6 @@ public class WordDetailsController {
         this.motActuel = null;
     }
 
-    // ========================================
-    // DIALOGUE D'ERREUR
-    // ========================================
     private void afficherErreur(String titre, String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle(titre);

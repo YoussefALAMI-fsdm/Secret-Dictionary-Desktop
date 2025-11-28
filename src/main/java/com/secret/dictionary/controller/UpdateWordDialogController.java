@@ -51,15 +51,15 @@ public class UpdateWordDialogController {
         Label titre = new Label("Modifier les informations du mot");
         titre.getStyleClass().add("dialog-title");
 
-        // ========== CHAMP MOT (NON MODIFIABLE) ==========
+        // ========== CHAMP MOT (MODIFIABLE) ==========
         VBox motBox = new VBox(5);
-        Label lblMot = new Label("📝 Mot (non modifiable)");
+        Label lblMot = new Label("📝 Mot");
         lblMot.getStyleClass().add("field-label");
 
         TextField txtMot = new TextField(motActuel.mot());
-        txtMot.setEditable(false);
-        txtMot.getStyleClass().add("text-field-disabled");
+        txtMot.setEditable(true);
         txtMot.setPrefWidth(400);
+        txtMot.getStyleClass().add("text-field"); // style normal
         motBox.getChildren().addAll(lblMot, txtMot);
 
         // ========== CHAMP DÉFINITION ==========
@@ -98,24 +98,24 @@ public class UpdateWordDialogController {
         txtEmojie.setPrefWidth(400);
         emojieBox.getChildren().addAll(lblEmojie, txtEmojie);
 
-        Label info = new Label("💡 Le mot lui-même ne peut pas être modifié");
+        Label info = new Label("💡 Vous pouvez modifier le mot, sa définition, sa catégorie et son émoji.");
         info.getStyleClass().add("info-label");
 
         content.getChildren().addAll(titre, motBox, defBox, categorieBox, emojieBox, info);
         dialog.getDialogPane().setContent(content);
-
         dialog.getDialogPane().getStyleClass().add("custom-dialog");
 
-        txtDef.requestFocus();
+        txtMot.requestFocus();
 
         dialog.setResultConverter(dialogButton -> {
             if (dialogButton == btnEnregistrer) {
+                String mot = txtMot.getText().trim();
                 String def = txtDef.getText().trim();
                 String categorie = cmbCategorie.getValue();
                 String emojie = txtEmojie.getText().trim();
 
                 return new MotDTO(
-                        motActuel.mot(),
+                        mot.isEmpty() ? motActuel.mot() : mot,
                         def.isEmpty() ? null : def,
                         categorie,
                         emojie.isEmpty() ? null : emojie
@@ -150,7 +150,6 @@ public class UpdateWordDialogController {
         alert.setContentText(message);
 
         alert.getDialogPane().getStyleClass().add("alert-success");
-
         alert.showAndWait();
     }
 
@@ -161,7 +160,6 @@ public class UpdateWordDialogController {
         alert.setContentText(message);
 
         alert.getDialogPane().getStyleClass().add("alert-error");
-
         alert.showAndWait();
     }
 }
