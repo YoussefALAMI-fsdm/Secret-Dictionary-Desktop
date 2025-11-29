@@ -180,7 +180,7 @@ public class MotServiceImp implements MotService { // Le controlleur logique ( f
     }
 
     @Override
-    public List<MotDTO> getListSynonymes(MotDTO mot) {
+    public List<String> getListSynonymes(MotDTO mot) {
 
         Mot m = dtoToEntity(mot);
 
@@ -192,24 +192,11 @@ public class MotServiceImp implements MotService { // Le controlleur logique ( f
 
            m.setId(idMot);
 
-           List<Mot> mots ;
+           List<String> mots ;
 
            try {
-
                mots = dao.getSynonymes(m);
-
-               if ( mots != null ) {
-
-                   List<MotDTO> motsDTO = new LinkedList<>();
-
-                   Iterator<Mot> it = mots.iterator();
-
-                   while ( it.hasNext())
-                       motsDTO.add(entityToDTO(it.next()));
-
-                   return motsDTO ;
-               }
-               return Collections.emptyList();
+               return mots == null ? Collections.emptyList() : mots ;
 
            } catch (DAOExeption e ) {
                System.err.println("Probleme DAO : " + e.getMessage());
@@ -225,7 +212,7 @@ public class MotServiceImp implements MotService { // Le controlleur logique ( f
     }
 
     @Override
-    public List<MotDTO> getListAntonymes(MotDTO mot) {
+    public List<String> getListAntonymes(MotDTO mot) {
 
         Mot m = dtoToEntity(mot);
 
@@ -237,24 +224,11 @@ public class MotServiceImp implements MotService { // Le controlleur logique ( f
 
             m.setId(idMot);
 
-            List<Mot> mots ;
+            List<String> mots ;
 
             try {
-
                 mots = dao.getAntonymes(m);
-
-                if ( mots != null ) {
-
-                    List<MotDTO> motsDTO = new LinkedList<>();
-
-                    Iterator<Mot> it = mots.iterator();
-
-                    while ( it.hasNext())
-                        motsDTO.add(entityToDTO(it.next()));
-
-                    return motsDTO ;
-                }
-                return Collections.emptyList();
+                return mots == null ? Collections.emptyList() : mots ;
 
             } catch ( DAOExeption e ) {
                 System.err.println("Probleme DAO : " + e.getMessage());

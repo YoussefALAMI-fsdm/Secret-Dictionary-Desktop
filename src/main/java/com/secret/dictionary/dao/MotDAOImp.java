@@ -189,11 +189,11 @@ public class MotDAOImp implements MotDAO { // Defenir le CRUD complet ( create, 
     }
 
     @Override
-    public List<Mot> getSynonymes(Mot mot) throws DAOExeption {
+    public List<String> getSynonymes(Mot mot) throws DAOExeption {
 
         // Usage du TEXT Bloc
         String sql = """       
-                   SELECT * FROM mots 
+                   SELECT mot FROM mots
                    WHERE id IN (
                     SELECT synonyme_id FROM mots_synonymes
                     WHERE mot_id = ?
@@ -209,19 +209,11 @@ public class MotDAOImp implements MotDAO { // Defenir le CRUD complet ( create, 
 
             ResultSet rs = ps.executeQuery();
 
-            List<Mot> synonymes = new LinkedList<>() ;
+            List<String> synonymes = new LinkedList<>() ;
 
-            while (rs.next()) {
+            while (rs.next())
+                synonymes.add(rs.getString("mot"));
 
-                Mot m = new Mot ( rs.getInt("id"),
-                        rs.getString("mot"),
-                        rs.getString("def"),
-                        rs.getString("categorie"),
-                        rs.getString("emojie")
-                );
-
-                synonymes.add(m);
-            }
 
             return synonymes.isEmpty() ? null : synonymes ;
 
@@ -231,9 +223,9 @@ public class MotDAOImp implements MotDAO { // Defenir le CRUD complet ( create, 
     }
 
     @Override
-    public List<Mot> getAntonymes(Mot mot) throws DAOExeption {
+    public List<String> getAntonymes(Mot mot) throws DAOExeption {
         String sql = """       
-                   SELECT * FROM mots 
+                   SELECT mot FROM mots
                    WHERE id IN (
                     SELECT antonyme_id FROM mots_antonymes
                     WHERE mot_id = ?
@@ -249,19 +241,10 @@ public class MotDAOImp implements MotDAO { // Defenir le CRUD complet ( create, 
 
             ResultSet rs = ps.executeQuery();
 
-            List<Mot> antonymes = new LinkedList<>() ;
+            List<String> antonymes = new LinkedList<>() ;
 
-            while (rs.next()) {
-
-                Mot m = new Mot ( rs.getInt("id"),
-                        rs.getString("mot"),
-                        rs.getString("def"),
-                        rs.getString("categorie"),
-                        rs.getString("emojie")
-                );
-
-                antonymes.add(m);
-            }
+            while (rs.next())
+                antonymes.add(rs.getString("mot"));
 
             return antonymes.isEmpty() ? null : antonymes ;
 
