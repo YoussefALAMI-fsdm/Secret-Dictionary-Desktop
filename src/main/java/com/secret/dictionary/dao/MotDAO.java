@@ -27,8 +27,8 @@ public interface MotDAO {
 
     boolean addSynonyme ( Mot mot1 , Mot mot2 ) throws DAOExeption ; // @ Mot doit avoir l'id valide
     boolean addAntonyme ( Mot mot1 , Mot mot2 ) throws DAOExeption ; // @ Mot doit avoir l'id valide
-    List<Mot> getSynonymes ( Mot mot ) throws DAOExeption ; // @ Mot doit avoir l'id valide
-    List<Mot> getAntonymes ( Mot mot ) throws DAOExeption ; // @ Mot doit avoir l'id valide
+    List<String> getSynonymes ( Mot mot ) throws DAOExeption ; // @ Mot doit avoir l'id valide
+    List<String> getAntonymes ( Mot mot ) throws DAOExeption ; // @ Mot doit avoir l'id valide
 
     List<Mot> findByCategorie ( Mot m ) throws DAOExeption ;
     List<Mot> findByEmojie ( Mot m ) throws DAOExeption ;
