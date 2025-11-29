@@ -5,10 +5,7 @@ import com.secret.dictionary.dao.MotDAOImp;
 import com.secret.dictionary.dto.MotDTO;
 import com.secret.dictionary.model.Mot;
 
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 public class MotServiceImp implements MotService { // Le controlleur logique ( fait aussi DAO <=> DTO )
 
@@ -319,6 +316,25 @@ public class MotServiceImp implements MotService { // Le controlleur logique ( f
             System.err.println("Probleme DAO : " + e.getMessage());
             e.printStackTrace();
             return Collections.emptyList();
+        }
+
+    }
+
+    @Override
+    public Map<String, Integer> getMotCountParCategorie() {
+
+        try {
+            Map<String,Integer> map = dao.getMotCountParCategorie();
+
+            if ( map != null )
+                return map ;
+
+            return Collections.EMPTY_MAP;
+
+        }catch ( DAOExeption e ) {
+            System.err.println("Probleme DAO : " + e.getMessage());
+            e.printStackTrace();
+            return Collections.EMPTY_MAP ;
         }
 
     }

@@ -3,6 +3,7 @@ package com.secret.dictionary.dao;
 import com.secret.dictionary.model.Mot;
 
 import java.util.List;
+import java.util.Map;
 
 public interface MotDAO {
 
@@ -32,5 +33,5 @@ public interface MotDAO {
     List<Mot> findByCategorie ( Mot m ) throws DAOExeption ;
     List<Mot> findByEmojie ( Mot m ) throws DAOExeption ;
 
-
+    Map<String,Integer> getMotCountParCategorie() throws DAOExeption ;
 }

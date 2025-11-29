@@ -4,8 +4,7 @@ import com.secret.dictionary.model.Mot;
 import com.secret.dictionary.util.DataBase;
 
 import java.sql.*;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 // DAO : Couche backend qui interagir avec la DB
 
@@ -326,6 +325,30 @@ public class MotDAOImp implements MotDAO { // Defenir le CRUD complet ( create, 
 
         } catch (SQLException e) {
             throw new DAOExeption("Erreur lors du recherche de mot ( findByMot ) ",e) ;
+        }
+    }
+
+    @Override
+    public Map<String, Integer> getMotCountParCategorie( ) throws DAOExeption {
+
+        String sql = "SELECT categorie,COUNT(*) FROM mots GROUP BY categorie ORDER BY categorie;";
+
+        try ( PreparedStatement ps = connexion.prepareStatement(sql) ) {
+
+            ResultSet rs = ps.executeQuery();
+
+            Map<String,Integer> map = new LinkedHashMap<>();
+
+            while ( rs.next() )
+                map.put(rs.getString("categorie"),rs.getInt(1));
+
+            if ( map.isEmpty() )
+                return null ;
+
+            return map ;
+
+        } catch ( SQLException e )  {
+            throw new DAOExeption("Erreur lors du getMotCountParCategorie() ",e) ;
         }
     }
 }
