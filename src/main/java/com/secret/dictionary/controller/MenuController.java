@@ -9,6 +9,7 @@ import javafx.util.Duration;
 
 /**
  * Contrôleur du menu latéral gauche
+ * MIS À JOUR : Ajout des dialogues synonyme/antonyme
  */
 public class MenuController {
 
@@ -22,12 +23,20 @@ public class MenuController {
     private MainController mainController;
     private boolean isMenuVisible = false;
 
+    // Contrôleurs des dialogues
+    private AddSynonymeDialogController addSynonymeDialogController;
+    private AddAntonymeDialogController addAntonymeDialogController;
+
     public void setMotService(MotServiceImp motService) {
         this.motService = motService;
     }
 
     public void setMainController(MainController mainController) {
         this.mainController = mainController;
+
+        // ✅ Initialiser les contrôleurs de dialogues
+        this.addSynonymeDialogController = new AddSynonymeDialogController(motService, mainController);
+        this.addAntonymeDialogController = new AddAntonymeDialogController(motService, mainController);
     }
 
     @FXML
@@ -78,6 +87,22 @@ public class MenuController {
     private void onNouveauClick() {
         if (mainController != null) {
             mainController.onNouveauClick();
+        }
+    }
+
+    // ✅ NOUVEAU : Action pour le bouton Synonyme
+    @FXML
+    private void onAjoutSynonymeClick() {
+        if (addSynonymeDialogController != null) {
+            addSynonymeDialogController.show();
+        }
+    }
+
+    // ✅ NOUVEAU : Action pour le bouton Antonyme
+    @FXML
+    private void onAjoutAntonymeClick() {
+        if (addAntonymeDialogController != null) {
+            addAntonymeDialogController.show();
         }
     }
 }
