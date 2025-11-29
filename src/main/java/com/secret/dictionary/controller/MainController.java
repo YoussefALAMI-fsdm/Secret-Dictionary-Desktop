@@ -12,6 +12,7 @@ import java.io.IOException;
 
 /**
  * Contrôleur principal - Orchestration des sous-composants
+ * MIS À JOUR : Initialisation complète des dialogues
  */
 public class MainController {
 
@@ -46,23 +47,29 @@ public class MainController {
      */
     private void initializeSubControllers() {
         try {
-            // Charger le menu latéral
+            // ========================================
+            // CHARGER LE MENU LATÉRAL
+            // ========================================
             FXMLLoader menuLoader = new FXMLLoader(getClass().getResource("/com/secret/dictionary/fxml/side-menu.fxml"));
             VBox menuView = menuLoader.load();
             menuController = menuLoader.getController();
             menuController.setMotService(motService);
-            menuController.setMainController(this);
+            menuController.setMainController(this);  // ✅ IMPORTANT : Initialise les dialogues synonyme/antonyme
             leftContainer.getChildren().add(menuView);
 
-            // Charger la zone de détails
+            // ========================================
+            // CHARGER LA ZONE DE DÉTAILS
+            // ========================================
             FXMLLoader detailsLoader = new FXMLLoader(getClass().getResource("/com/secret/dictionary/fxml/word-details.fxml"));
             ScrollPane detailsView = detailsLoader.load();
             wordDetailsController = detailsLoader.getController();
             wordDetailsController.setMotService(motService);
-            wordDetailsController.setMainController(this);  // ✅ IMPORTANT: Passer mainController
+            wordDetailsController.setMainController(this);
             centerContainer.getChildren().add(detailsView);
 
-            // Charger la liste des mots
+            // ========================================
+            // CHARGER LA LISTE DES MOTS
+            // ========================================
             FXMLLoader listLoader = new FXMLLoader(getClass().getResource("/com/secret/dictionary/fxml/word-list.fxml"));
             VBox listView = listLoader.load();
             wordListController = listLoader.getController();
@@ -70,11 +77,18 @@ public class MainController {
             wordListController.setMainController(this);
             rightContainer.getChildren().add(listView);
 
-            // Initialiser les contrôleurs de dialogues
+            // ========================================
+            // INITIALISER LES CONTRÔLEURS DE DIALOGUES
+            // ========================================
             searchDialogController = new SearchDialogController(motService, this);
             addWordDialogController = new AddWordDialogController(motService, this);
 
-            // Charger tous les mots au démarrage
+            // ✅ Les dialogues synonyme/antonyme sont initialisés dans MenuController
+            // via setMainController() appelé ci-dessus
+
+            // ========================================
+            // CHARGER TOUS LES MOTS AU DÉMARRAGE
+            // ========================================
             wordListController.chargerTousLesMots();
 
         } catch (IOException e) {

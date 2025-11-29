@@ -41,8 +41,8 @@ public class SearchDialogController {
         dialog.getDialogPane().getButtonTypes().addAll(btnRechercher, btnAnnuler);
 
         // ✨ CONTENEUR PRINCIPAL
-        VBox content = new VBox(15);
-        content.setPadding(new Insets(20));
+        VBox content = new VBox(20);
+        content.setPadding(new Insets(30));
         content.setAlignment(Pos.CENTER_LEFT);
         content.setStyle("-fx-background-color: #1a0b2e; -fx-background-radius: 10;");
         content.setMinHeight(Region.USE_PREF_SIZE);
@@ -134,7 +134,7 @@ public class SearchDialogController {
         autocompleteBox.getChildren().addAll(txtRecherche, suggestionList);
         autocompleteBox.setMaxWidth(400);
         autocompleteBox.setPrefWidth(400);
-        autocompleteBox.setMinHeight(Region.USE_PREF_SIZE);
+        autocompleteBox.setMinHeight(150);
 
         // Labels d'information
         Label info = new Label("💡 La recherche floue trouve les mots similaires");
