@@ -14,7 +14,6 @@ Une application JavaFX moderne et élégante pour la gestion de mots et définit
 
 - ➕ **Ajout de mots** avec définition, catégorie et emoji personnalisé
 - ✏️ **Modification complète** : changez le mot, sa définition, catégorie ou emoji
-- 🗑️ **Suppression de mots** avec gestion automatique des relations
 - 🔍 **Recherche intelligente** avec autocomplétion floue en temps réel (pg_trgm)
 - 📋 **Affichage détaillé** de chaque mot avec toutes ses informations
 - 📚 **Liste complète** de tous les mots du dictionnaire triés alphabétiquement
