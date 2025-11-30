@@ -34,7 +34,7 @@ public class MenuController {
     public void setMainController(MainController mainController) {
         this.mainController = mainController;
 
-        // ✅ Initialiser les contrôleurs de dialogues
+        // Initialiser les contrôleurs de dialogues
         this.addSynonymeDialogController = new AddSynonymeDialogController(motService, mainController);
         this.addAntonymeDialogController = new AddAntonymeDialogController(motService, mainController);
     }
