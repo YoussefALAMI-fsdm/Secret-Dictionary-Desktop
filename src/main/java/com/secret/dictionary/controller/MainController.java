@@ -12,10 +12,9 @@ import java.io.IOException;
 
 /**
  * Contrôleur principal - Orchestration des sous-composants
- * MIS À JOUR : Initialisation complète des dialogues
+ * MIS À JOUR : Ajout de la vue des statistiques par défaut
  */
 public class MainController {
-    // HBox, ... classes JavaFX
     @FXML private BorderPane rootPane;
     @FXML private HBox topBar;
     @FXML private HBox leftContainer;
@@ -32,6 +31,11 @@ public class MainController {
     private WordListController wordListController;
     private SearchDialogController searchDialogController;
     private AddWordDialogController addWordDialogController;
+    private StatisticsViewController statisticsViewController;
+
+    // Vues centrales
+    private ScrollPane detailsView;
+    private ScrollPane statisticsView;
 
     public void setMotService(MotServiceImp motService) {
         this.motService = motService;
@@ -67,11 +71,21 @@ public class MainController {
             // CHARGER LA ZONE DE DÉTAILS
             // ========================================
             FXMLLoader detailsLoader = new FXMLLoader(getClass().getResource("/com/secret/dictionary/fxml/word-details.fxml"));
-            ScrollPane detailsView = detailsLoader.load();
+            detailsView = detailsLoader.load();
             wordDetailsController = detailsLoader.getController();
             wordDetailsController.setMotService(motService);
             wordDetailsController.setMainController(this);
-            centerContainer.getChildren().add(detailsView);
+
+            // ========================================
+            // CHARGER LA VUE DES STATISTIQUES
+            // ========================================
+            FXMLLoader statsLoader = new FXMLLoader(getClass().getResource("/com/secret/dictionary/fxml/statistics-view.fxml"));
+            statisticsView = statsLoader.load();
+            statisticsViewController = statsLoader.getController();
+            statisticsViewController.setMotService(motService);
+
+            // ✅ AFFICHER LES STATISTIQUES PAR DÉFAUT
+            centerContainer.getChildren().add(statisticsView);
 
             // ========================================
             // CHARGER LA LISTE DES MOTS
@@ -84,7 +98,7 @@ public class MainController {
             rightContainer.getChildren().add(listView);
 
             // ========================================
-            // INITIALISER LES CONTRÔLEURS DE DIALOGUES (pas d'interface en fxml)
+            // INITIALISER LES CONTRÔLEURS DE DIALOGUES
             // ========================================
             searchDialogController = new SearchDialogController(motService, this);
             addWordDialogController = new AddWordDialogController(motService, this);
@@ -126,29 +140,56 @@ public class MainController {
 
     public void afficherTousLesMots() {
         wordListController.chargerTousLesMots();
-        hideDetailsView(); //masque
+        showStatisticsView(); // Retour aux statistiques
     }
 
     public void rafraichirListeMots() {
         wordListController.chargerTousLesMots();
+        // Rafraîchir aussi les statistiques
+        if (statisticsViewController != null) {
+            statisticsViewController.rafraichirStatistiques();
+        }
     }
 
     // ========================================
     // GESTION VISIBILITÉ DES VUES
     // ========================================
+
     /**
      * Affiche la vue détails dans le centre sans cacher les conteneurs gauche/droite
      */
+
     private void showDetailsView() {
+        centerContainer.getChildren().clear();
+        centerContainer.getChildren().add(detailsView);
         centerContainer.setVisible(true);
         centerContainer.setManaged(true);
     }
 
     /**
-     * Cache la vue détails
+     * Affiche la vue statistiques dans le centre
+     */
+    private void showStatisticsView() {
+        // Masquer d'abord les détails
+        if (wordDetailsController != null) {
+            wordDetailsController.masquerDetails();
+        }
+
+        centerContainer.getChildren().clear();
+        centerContainer.getChildren().add(statisticsView);
+        centerContainer.setVisible(true);
+        centerContainer.setManaged(true);
+
+        // Rafraîchir les statistiques
+        if (statisticsViewController != null) {
+            statisticsViewController.rafraichirStatistiques();
+        }
+    }
+
+    /**
+     * Cache la vue centrale
      */
     private void hideDetailsView() {
-        // ✅ Appeler masquerDetails() avant de cacher le conteneur
         if (wordDetailsController != null) {
             wordDetailsController.masquerDetails();
         }
