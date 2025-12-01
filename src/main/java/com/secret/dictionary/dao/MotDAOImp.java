@@ -314,7 +314,7 @@ public class MotDAOImp implements MotDAO { // Defenir le CRUD complet ( create, 
     @Override
     public Map<String, Integer> getMotCountParCategorie( ) throws DAOExeption {
 
-        String sql = "SELECT categorie,COUNT(*) FROM mots GROUP BY categorie ORDER BY categorie;";
+        String sql = "SELECT categorie,COUNT(*) as compteur FROM mots GROUP BY categorie ORDER BY categorie;";
 
         try ( PreparedStatement ps = connexion.prepareStatement(sql) ) {
 
@@ -323,7 +323,7 @@ public class MotDAOImp implements MotDAO { // Defenir le CRUD complet ( create, 
             Map<String,Integer> map = new LinkedHashMap<>();
 
             while ( rs.next() )
-                map.put(rs.getString("categorie"),rs.getInt(1));
+                map.put(rs.getString("categorie"),rs.getInt("compteur"));
 
             if ( map.isEmpty() )
                 return null ;
