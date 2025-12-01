@@ -34,4 +34,6 @@ public interface MotDAO {
     List<Mot> findByEmojie ( Mot m ) throws DAOExeption ;
 
     Map<String,Integer> getMotCountParCategorie() throws DAOExeption ;
+
+    void rafraichirMaterializedView () throws DAOExeption ; // @ On l'utilise pour rafraichir apres chaque insert ou update
 }

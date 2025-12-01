@@ -48,24 +48,37 @@ public class MotServiceImp implements MotService { // Le controlleur logique ( f
     public int addMot(MotDTO dto) {
         Mot m = dtoToEntity(dto);
 
+        int estAddSuccess = -1 ;
+
         try {
             boolean resultat = dao.saveMot(m);
 
             if (resultat)  // car .save(m) return true si bien
-                return 1;
+                estAddSuccess = 1;
             else
-                return -1; // .save() return false si probleme BD sans exeption ( non capturer ) ( mot existant leve une exeptions )
+                estAddSuccess = -1; // .save() return false si probleme BD sans exeption ( non capturer ) ( mot existant leve une exeptions )
 
         } catch (DAOExeption e) { // Si l'exeption est levé alors on test les cas ( mot deja existant , ou probleme DB )
 
              if ( getInfoMot(dto) != null ) // Mot existant
-                 return 0 ;
+                 estAddSuccess = 0 ;
              else {
                  System.err.println("Probleme DAO : " + e.getMessage());
                  e.printStackTrace();
-                 return -1;
+                 estAddSuccess = -1;
              }
         }
+        finally {
+            if ( estAddSuccess == 1 ) { // rafraichir seulement c'est l'insert a bien passé
+                try {
+                    dao.rafraichirMaterializedView();
+                } catch (DAOExeption e) {
+                    System.err.println("Problème rafraîchissement MV : " + e.getMessage());
+                    e.printStackTrace();
+                }
+            }
+        }
+        return estAddSuccess ;
     }
 
     @Override
@@ -99,16 +112,28 @@ public class MotServiceImp implements MotService { // Le controlleur logique ( f
     @Override
     public boolean updateMot ( MotDTO ancien , MotDTO nouveau ) {
 
+        boolean estUpdateSuccess = false ;
+
         try {
              Mot m1 = dtoToEntity(ancien) ;
             Mot m2 = dtoToEntity(nouveau) ;
-            return dao.updateMot(m1,m2) ;
+            estUpdateSuccess = dao.updateMot(m1,m2) ;
 
         } catch ( DAOExeption e ) {
             System.err.println("Probleme DAO : " + e.getMessage());
             e.printStackTrace();
-            return false ;
         }
+        finally {
+            if ( estUpdateSuccess ) { // rafraichir seulement c'est l'update a bien passé
+                try {
+                    dao.rafraichirMaterializedView();
+                } catch (DAOExeption e) {
+                    System.err.println("Problème rafraîchissement MV : " + e.getMessage());
+                    e.printStackTrace();
+                }
+            }
+        }
+        return estUpdateSuccess ;
     }
 
     @Override

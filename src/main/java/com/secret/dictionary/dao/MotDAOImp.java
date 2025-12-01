@@ -314,7 +314,7 @@ public class MotDAOImp implements MotDAO { // Defenir le CRUD complet ( create, 
     @Override
     public Map<String, Integer> getMotCountParCategorie( ) throws DAOExeption {
 
-        String sql = "SELECT categorie,COUNT(*) as compteur FROM mots GROUP BY categorie ORDER BY categorie;";
+        String sql = "SELECT categorie, compteur FROM mv_mots_count_par_categorie ORDER BY categorie"; // On utilise la Materialisid View
 
         try ( PreparedStatement ps = connexion.prepareStatement(sql) ) {
 
@@ -333,5 +333,18 @@ public class MotDAOImp implements MotDAO { // Defenir le CRUD complet ( create, 
         } catch ( SQLException e )  {
             throw new DAOExeption("Erreur lors du getMotCountParCategorie() ",e) ;
         }
+    }
+
+    @Override
+    public void rafraichirMaterializedView () throws DAOExeption {
+
+        String sql = "REFRESH MATERIALIZED VIEW mv_mots_count_par_categorie";
+
+        try (PreparedStatement ps = connexion.prepareStatement(sql)) {
+            ps.execute();
+        } catch (SQLException e) {
+            throw new DAOExeption("Erreur lors du rafraîchissement de la MV", e);
+        }
+
     }
 }
