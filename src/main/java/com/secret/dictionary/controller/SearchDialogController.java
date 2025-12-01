@@ -43,9 +43,9 @@ public class SearchDialogController {
         // ✨ CONTENEUR PRINCIPAL
         VBox content = new VBox(20);
         content.setPadding(new Insets(30));
-        content.setAlignment(Pos.CENTER_LEFT);
+        content.setAlignment(Pos.CENTER_LEFT);//class, enumeration
         content.setStyle("-fx-background-color: #1a0b2e; -fx-background-radius: 10;");
-        content.setMinHeight(Region.USE_PREF_SIZE);
+        content.setMinHeight(Region.USE_PREF_SIZE);//calculée automatiquement par JavaFX, class abstraite,constante statique de la classe Region
 
         Label titre = new Label("Entrez le mot à rechercher");
         titre.setStyle("-fx-font-size: 16px; -fx-text-fill: #c77dff; -fx-font-weight: bold;");
