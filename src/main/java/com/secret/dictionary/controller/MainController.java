@@ -21,11 +21,9 @@ public class MainController {
     @FXML private HBox centerContainer;
     @FXML private HBox rightContainer;
 
-    // Injection du service
     private MotServiceImp motService;
 
     // Sous-contrôleurs
-    //Les contrôleurs sont des attributs de classe
     private MenuController menuController;
     private WordDetailsController wordDetailsController;
     private WordListController wordListController;
@@ -43,8 +41,6 @@ public class MainController {
     }
 
     @FXML
-    //Méthode héritée de l'interface Initializable
-    //Cette méthode doit être appelée après que JavaFX ait injecté tous les éléments du fichier FXML dans le contrôleur
     public void initialize() {
         // L'initialisation complète se fait après injection du service
     }
@@ -59,12 +55,9 @@ public class MainController {
             // ========================================
             FXMLLoader menuLoader = new FXMLLoader(getClass().getResource("/com/secret/dictionary/fxml/side-menu.fxml"));
             VBox menuView = menuLoader.load();
-            //récupérer l’instance du contrôleur définie dans le fichier FXML
             menuController = menuLoader.getController();
-            //Le contrôleur du menu a donc besoin du service principal : injection de dépendance
             menuController.setMotService(motService);
-            //donner au contrôleur du menu une référence vers le contrôleur principal
-            menuController.setMainController(this);  // RE IMPORTANT : Initialise les dialogues synonyme/antonyme
+            menuController.setMainController(this);
             leftContainer.getChildren().add(menuView);
 
             // ========================================
@@ -103,9 +96,6 @@ public class MainController {
             searchDialogController = new SearchDialogController(motService, this);
             addWordDialogController = new AddWordDialogController(motService, this);
 
-            // Les dialogues synonyme/antonyme sont initialisés dans MenuController
-            // via setMainController() appelé ci-dessus
-
             // ========================================
             // CHARGER TOUS LES MOTS AU DÉMARRAGE
             // ========================================
@@ -128,6 +118,11 @@ public class MainController {
     @FXML
     public void onNouveauClick() {
         addWordDialogController.show();
+    }
+
+    @FXML
+    private void onStatistiquesClick() {
+        showStatisticsView();
     }
 
     // ========================================
@@ -156,9 +151,8 @@ public class MainController {
     // ========================================
 
     /**
-     * Affiche la vue détails dans le centre sans cacher les conteneurs gauche/droite
+     * Affiche la vue détails dans le centre
      */
-
     private void showDetailsView() {
         centerContainer.getChildren().clear();
         centerContainer.getChildren().add(detailsView);
