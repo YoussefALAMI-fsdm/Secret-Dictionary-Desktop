@@ -43,9 +43,9 @@ public class SearchDialogController {
         // ✨ CONTENEUR PRINCIPAL
         VBox content = new VBox(20);
         content.setPadding(new Insets(30));
-        content.setAlignment(Pos.CENTER_LEFT);
+        content.setAlignment(Pos.CENTER_LEFT);//class, enumeration
         content.setStyle("-fx-background-color: #1a0b2e; -fx-background-radius: 10;");
-        content.setMinHeight(Region.USE_PREF_SIZE);
+        content.setMinHeight(Region.USE_PREF_SIZE);//calculée automatiquement par JavaFX, class abstraite,constante statique de la classe Region
 
         Label titre = new Label("Entrez le mot à rechercher");
         titre.setStyle("-fx-font-size: 16px; -fx-text-fill: #c77dff; -fx-font-weight: bold;");
@@ -81,9 +81,14 @@ public class SearchDialogController {
         //"-fx-fixed-cell-size: " + ITEM_HEIGHT + ";"
 
         // Style des cellules
+        //Cell<T> la class mere de ListCell
+        //setCellFactory sert a personnaliser l’apparence des cellules (Callback<ListView<String>, ListCell<String>>)
         suggestionList.setCellFactory(param -> new ListCell<String>() {
+            //Le lambda retourne une nouvelle cellule ListCell<String> pour chaque élément affiché
             @Override
+            //Cell<T> contient la méthode updateItem , gère l'affichage d'un élément individuel
             protected void updateItem(String item, boolean empty) {
+                //updateItem n'est pas un constructeur ...
                 super.updateItem(item, empty);
                 if (empty || item == null) {
                     setText(null);
@@ -99,7 +104,8 @@ public class SearchDialogController {
                                     "-fx-cursor: hand; " +
                                     "-fx-background-insets: 0;"
                     );
-
+                    //lambda remplace un new EventHandler<MouseEvent>()
+                    //ne return rien elles modifient l’état interne du Node
                     setOnMouseEntered(e -> {
                         if (!isEmpty()) {
                             setStyle(
@@ -159,8 +165,13 @@ public class SearchDialogController {
         // ========================================
         // 🔥 LOGIQUE D'AUTOCOMPLÉTION EN TEMPS RÉEL
         // ========================================
+        //lookupButton retourne un Node générique , retourne le vrai objet Button (permet .setDisable)
+        //la classe Button hérite indirectement de Node (sans casting btnRechercherNode est de type Node)
         Button btnRechercherNode = (Button) dialog.getDialogPane().lookupButton(btnRechercher);
 
+        //textProperty c’est une méthode héritée de la classe TextInputControl retourne un objet StringProperty
+        //"" → "a" → "ab" → "abc"
+        //addListener c’est pour réagir lorsque le texte change
         txtRecherche.textProperty().addListener((observable, oldValue, newValue) -> {
             String query = newValue.trim();
 
@@ -178,6 +189,7 @@ public class SearchDialogController {
                                 "-fx-background-radius: 5 5 0 0;"
                 );
             } else {
+                //récupérer tous les mots commençant par query
                 List<String> suggestions = motService.getListMot(query);
 
                 if (suggestions.isEmpty()) {
@@ -291,6 +303,7 @@ public class SearchDialogController {
             return null;
         });
 
+        //return null si l’utilisateur annule
         Optional<String> result = dialog.showAndWait();
         result.ifPresent(mot -> {
             if (!mot.isEmpty()) {
