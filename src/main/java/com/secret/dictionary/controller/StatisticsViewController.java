@@ -28,6 +28,7 @@ public class StatisticsViewController {
     }
 
     @FXML
+    //Elle sert à initialiser l'interface graphique
     public void initialize() {
         // Configuration initiale si nécessaire
     }
@@ -38,6 +39,7 @@ public class StatisticsViewController {
     public void chargerStatistiques() {
         if (motService == null) return;
 
+
         Map<String, Integer> stats = motService.getMotCountParCategorie();
 
         if (stats == null || stats.isEmpty()) {
@@ -47,6 +49,8 @@ public class StatisticsViewController {
 
         // Calculer le total
         int total = stats.values().stream().mapToInt(Integer::intValue).sum();
+        //Convertit chaque Integer en int
+        //Parce que sum() n’existe que sur les IntStream, pas sur Stream<Integer>.
         totalCountLabel.setText(total + " mots au total");
 
         // Vider la liste actuelle
@@ -63,6 +67,7 @@ public class StatisticsViewController {
         );
 
         // Ajouter chaque catégorie
+        //applique une action à chaque entrée de la Map
         stats.forEach((categorie, count) -> {
             String emoji = categoryEmojis.getOrDefault(categorie, "📌");
             VBox categoryCard = creerCarteCategorie(emoji, categorie, count, total);
@@ -93,6 +98,7 @@ public class StatisticsViewController {
         // Barre de progression et compteur
         HBox progressBar = new HBox(10);
         progressBar.setAlignment(Pos.CENTER_LEFT);
+        //setHgrow est une méthode statique de HBox , indique la priorité de croissance horizontal
         HBox.setHgrow(progressBar, Priority.ALWAYS);
 
         // Calculer le pourcentage
