@@ -27,10 +27,12 @@ public class WordListController {
     private MainController mainController;
 
     public void setMotService(MotServiceImp motService) {
+
         this.motService = motService;
     }
 
     public void setMainController(MainController mainController) {
+
         this.mainController = mainController;
     }
 
