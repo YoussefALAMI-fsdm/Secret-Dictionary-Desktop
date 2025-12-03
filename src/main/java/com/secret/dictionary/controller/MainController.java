@@ -15,6 +15,7 @@ import java.io.IOException;
  * MIS À JOUR : Ajout de la vue des statistiques par défaut
  */
 public class MainController {
+    // HBox, ... classes JavaFX
     @FXML private BorderPane rootPane;
     @FXML private HBox topBar;
     @FXML private HBox leftContainer;
@@ -24,6 +25,7 @@ public class MainController {
     private MotServiceImp motService;
 
     // Sous-contrôleurs
+    //Les contrôleurs sont des attributs de classe
     private MenuController menuController;
     private WordDetailsController wordDetailsController;
     private WordListController wordListController;
@@ -41,6 +43,8 @@ public class MainController {
     }
 
     @FXML
+    //Méthode héritée de l'interface Initializable
+    //Cette méthode doit être appelée après que JavaFX ait injecté tous les éléments du fichier FXML dans le contrôleur
     public void initialize() {
         // L'initialisation complète se fait après injection du service
     }
@@ -54,10 +58,15 @@ public class MainController {
             // CHARGER LE MENU LATÉRAL
             // ========================================
             FXMLLoader menuLoader = new FXMLLoader(getClass().getResource("/com/secret/dictionary/fxml/side-menu.fxml"));
+            //crées un chargeur prêt à lire ton fichier FXML
             VBox menuView = menuLoader.load();
+            //récupérer l’instance du contrôleur définie dans le fichier FXML
             menuController = menuLoader.getController();
+            // Le contrôleur du menu a donc besoin du service principal : injection de dépendance
             menuController.setMotService(motService);
+            // donner au contrôleur du menu une référence vers le contrôleur principal
             menuController.setMainController(this);
+            // RE IMPORTANT : Initialise les dialogues synonyme/antonyme
             leftContainer.getChildren().add(menuView);
 
             // ========================================
@@ -73,9 +82,11 @@ public class MainController {
             // CHARGER LA VUE DES STATISTIQUES
             // ========================================
             FXMLLoader statsLoader = new FXMLLoader(getClass().getResource("/com/secret/dictionary/fxml/statistics-view.fxml"));
+            //renvoie la racine du layout FXML dans statisticsView
             statisticsView = statsLoader.load();
             statisticsViewController = statsLoader.getController();
             statisticsViewController.setMotService(motService);
+            //on a pas besoin de .setMainController (rien n'est demander ou chager , ...)
 
             // ✅ AFFICHER LES STATISTIQUES PAR DÉFAUT
             centerContainer.getChildren().add(statisticsView);
@@ -95,6 +106,8 @@ public class MainController {
             // ========================================
             searchDialogController = new SearchDialogController(motService, this);
             addWordDialogController = new AddWordDialogController(motService, this);
+            // Les dialogues synonyme/antonyme sont initialisés dans MenuController
+            // via setMainController() appelé ci-dessus
 
             // ========================================
             // CHARGER TOUS LES MOTS AU DÉMARRAGE
