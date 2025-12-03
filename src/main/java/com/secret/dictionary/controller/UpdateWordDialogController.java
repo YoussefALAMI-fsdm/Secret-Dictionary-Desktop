@@ -38,7 +38,8 @@ public class UpdateWordDialogController {
 
         Dialog<MotDTO> dialog = new Dialog<>();
         dialog.setTitle("✏️ Modifier le mot : " + motActuel.mot());
-        dialog.initModality(Modality.APPLICATION_MODAL);
+        //blocage d’une fenêtre
+        dialog.initModality(Modality.APPLICATION_MODAL);//enum,constante
 
         ButtonType btnEnregistrer = new ButtonType("Enregistrer", ButtonBar.ButtonData.OK_DONE);
         ButtonType btnAnnuler = new ButtonType("Annuler", ButtonBar.ButtonData.CANCEL_CLOSE);
@@ -134,6 +135,8 @@ public class UpdateWordDialogController {
                 mainController.rafraichirListeMots();
                 mainController.afficherDetailsMot(nouveauDTO.mot());
             } else {
+                //Mot déjà existant
+                //Erreur base de données
                 afficherErreur("❌ Erreur",
                         "Une erreur est survenue lors de la modification du mot.");
             }

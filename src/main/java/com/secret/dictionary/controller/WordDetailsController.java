@@ -14,6 +14,7 @@ import java.util.List;
 
 public class WordDetailsController {
 
+    //VBox , ... class
     @FXML private VBox vboxCenter;
     @FXML private Label wordTitle;
     @FXML private Label emojieLabel;

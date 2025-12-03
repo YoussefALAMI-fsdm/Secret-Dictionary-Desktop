@@ -46,6 +46,9 @@ public class MainController {
     //Méthode héritée de l'interface Initializable
     //Cette méthode doit être appelée après que JavaFX ait injecté tous les éléments du fichier FXML dans le contrôleur
     public void initialize() {
+        //Elle sert à initialiser l'interface graphique
+        //controller dépend de motService
+        //motService n’est pas encore disponible dans initialize()
         // L'initialisation complète se fait après injection du service
     }
 

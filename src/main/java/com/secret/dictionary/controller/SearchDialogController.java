@@ -37,7 +37,7 @@ public class SearchDialogController {
         dialog.initModality(Modality.APPLICATION_MODAL);
 
         ButtonType btnRechercher = new ButtonType("Rechercher", ButtonBar.ButtonData.OK_DONE);
-        ButtonType btnAnnuler = new ButtonType("Annuler", ButtonBar.ButtonData.CANCEL_CLOSE);
+        ButtonType btnAnnuler = new ButtonType("Annuler", ButtonBar.ButtonData.CANCEL_CLOSE);//enum , constante
         dialog.getDialogPane().getButtonTypes().addAll(btnRechercher, btnAnnuler);
 
         // ✨ CONTENEUR PRINCIPAL
