@@ -269,57 +269,6 @@ public class MotServiceImp implements MotService { // Le controlleur logique ( f
     }
 
     @Override
-    public List<MotDTO> searchByCategorie(MotDTO mot) {
-
-        try {
-            List<Mot> mots = dao.findByCategorie(dtoToEntity(mot));
-
-            if ( mots == null )
-                return Collections.emptyList();
-
-            Iterator<Mot> it = mots.iterator() ;
-            List<MotDTO> motsDTO = new LinkedList<>();
-
-            while (it.hasNext())
-                motsDTO.add(entityToDTO(it.next()));
-
-            return motsDTO.isEmpty() ? Collections.emptyList() : motsDTO ;
-
-
-        } catch (DAOExeption e) {
-            System.err.println("Probleme DAO : " + e.getMessage());
-            e.printStackTrace();
-            return Collections.emptyList();
-        }
-    }
-
-    @Override
-    public List<MotDTO> searchByEmojie(MotDTO mot) {
-
-        try {
-            List<Mot> mots = dao.findByEmojie(dtoToEntity(mot));
-
-            if ( mots == null )
-                return Collections.emptyList();
-
-            Iterator<Mot> it = mots.iterator() ;
-            List<MotDTO> motsDTO = new LinkedList<>();
-
-            while (it.hasNext())
-                motsDTO.add(entityToDTO(it.next()));
-
-            return motsDTO.isEmpty() ? Collections.emptyList() : motsDTO ;
-
-
-        } catch (DAOExeption e) {
-            System.err.println("Probleme DAO : " + e.getMessage());
-            e.printStackTrace();
-            return Collections.emptyList();
-        }
-
-    }
-
-    @Override
     public Map<String, Integer> getMotCountParCategorie() {
 
         try {
