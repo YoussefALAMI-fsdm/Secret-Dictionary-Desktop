@@ -254,64 +254,6 @@ public class MotDAOImp implements MotDAO { // Defenir le CRUD complet ( create, 
     }
 
     @Override
-    public List<Mot> findByCategorie(Mot mot) throws DAOExeption {
-
-        String sql = "SELECT * FROM mots WHERE categorie = ?;" ;
-
-        try( PreparedStatement ps = connexion.prepareStatement(sql) ) {
-
-            ps.setString(1,mot.getCategorie());
-            ResultSet rs = ps.executeQuery() ;
-
-            List<Mot> mots = new LinkedList<>();
-
-            while ( rs.next() ) {
-
-                Mot m = new Mot(rs.getInt("id"),
-                        rs.getString("mot"),
-                        rs.getString("def"),
-                        rs.getString("categorie"),
-                        rs.getString("emojie")) ;
-
-                mots.add(m);
-            }
-           return mots.isEmpty() ? null : mots ;
-
-        } catch (SQLException e) {
-            throw new DAOExeption("Erreur lors du recherche de mot ( findByMot ) ",e) ;
-        }
-    }
-
-    @Override
-    public List<Mot> findByEmojie (Mot mot) throws DAOExeption {
-
-        String sql = "SELECT * FROM mots WHERE emojie = ?;" ;
-
-        try( PreparedStatement ps = connexion.prepareStatement(sql) ) {
-
-            ps.setString(1,mot.getEmojie());
-            ResultSet rs = ps.executeQuery() ;
-
-            List<Mot> mots = new LinkedList<>();
-
-            while ( rs.next() ) {
-
-                Mot m = new Mot(rs.getInt("id"),
-                        rs.getString("mot"),
-                        rs.getString("def"),
-                        rs.getString("categorie"),
-                        rs.getString("emojie")) ;
-
-                mots.add(m);
-            }
-            return mots.isEmpty() ? null : mots ;
-
-        } catch (SQLException e) {
-            throw new DAOExeption("Erreur lors du recherche de mot ( findByMot ) ",e) ;
-        }
-    }
-
-    @Override
     public Map<String, Integer> getMotCountParCategorie( ) throws DAOExeption {
 
         String sql = "SELECT categorie, compteur FROM mv_mots_count_par_categorie ORDER BY categorie"; // On utilise la Materialisid View

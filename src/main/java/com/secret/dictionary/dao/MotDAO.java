@@ -30,9 +30,6 @@ public interface MotDAO {
     List<String> getSynonymes ( Mot mot ) throws DAOExeption ; // @ Mot doit avoir l'id valide
     List<String> getAntonymes ( Mot mot ) throws DAOExeption ; // @ Mot doit avoir l'id valide
 
-    List<Mot> findByCategorie ( Mot m ) throws DAOExeption ;
-    List<Mot> findByEmojie ( Mot m ) throws DAOExeption ;
-
     Map<String,Integer> getMotCountParCategorie() throws DAOExeption ;
 
     void rafraichirMaterializedView () throws DAOExeption ; // @ On l'utilise pour rafraichir apres chaque insert ou update

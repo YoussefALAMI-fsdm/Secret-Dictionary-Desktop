@@ -45,13 +45,6 @@ public interface MotService {
                                                   // @Return List<String> ( list des antonymes )
 
 
-    List<MotDTO> searchByCategorie ( MotDTO mot ) ; // @Return List<MotDTO> selon categorie
-                                                   // @ List vide sinon ( a verifier avec .isEmpty )
-
-
-    List<MotDTO> searchByEmojie ( MotDTO mot ) ; // @Return List<MotDTO> selon Emojie
-                                                    // @ List vide sinon ( a verifier avec .isEmpty )
-
    Map<String,Integer> getMotCountParCategorie(); // @return une Map ( deja trié ) qui contient : Categorie comme clé et Nombre d'occurence comme valeur
                                                   // @return Map vide si aucun categorie
 
