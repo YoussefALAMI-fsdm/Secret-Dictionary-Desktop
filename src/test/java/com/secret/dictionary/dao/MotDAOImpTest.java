@@ -16,6 +16,7 @@ import org.junit.jupiter.api.*;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.List;
 import java.util.Map;
@@ -56,34 +57,29 @@ public class MotDAOImpTest {
     }
 
     @BeforeEach
-    public void initDB () throws Exception { // on a Junit de gerer les Exeption : si lancé => Test echoue
+    public void initDB () throws Exception { // on donne a Junit de gerer les Exeption : si lancé => Test echoue
 
         logger.log("────────────────────────────────────────────────────────────");
         logger.log("🔧 Initialisation de la base H2 en mémoire...");
 
         connexionH2 = DriverManager.getConnection (
-                "jdbc:h2:mem:testdb;MODE=PostgreSQL;DATABASE_TO_UPPER=FALSE;DB_CLOSE_DELAY=-1;", // mem:testdb => Creer la DB en mémoire
-                "sa", ""           // DATABASE_TO_UPPER=FALSE => Sensible a la casse pour respecté les regles de PostgreSQL
-                ); // DB_CLOSE_DELAY=-1 => Permet a la base de rester ouvert en mémoire pour executer les scripts avec flyway
+                "jdbc:h2:mem:testdb;MODE=PostgreSQL;DATABASE_TO_UPPER=FALSE;DB_CLOSE_DELAY=-1;",
+                "sa", ""
+        );
 
         Flyway flyway = Flyway.configure()
                 .dataSource("jdbc:h2:mem:testdb;MODE=PostgreSQL;DATABASE_TO_UPPER=FALSE;DB_CLOSE_DELAY=-1;",
                         "sa",
-                        "") // sa => user par default de H2 , "" => pas de mot de passe
-                .cleanDisabled(false) // autorise clean
+                        "")
+                .cleanDisabled(false)
                 .locations("classpath:db/migration")
                 .load();
 
         flyway.clean(); // Nettoie la base avant chaque test
-        flyway.migrate();
-
-        try (Statement st = connexionH2.createStatement()) {
-            st.execute("DELETE FROM mots_synonymes");
-            st.execute("DELETE FROM mots_antonymes");
-        }
+        flyway.migrate(); // Applique toutes les migrations (dont V11 avec les relations)
 
 
-       /* DataBase dbMock = mock(DataBase.class); // Puiseque notre DAO prend une BD en arguement alors on le mock
+        /* DataBase dbMock = mock(DataBase.class); // Puiseque notre DAO prend une BD en arguement alors on le mock
         when(dbMock.getConnection()).thenReturn(connexionH2);  // Quand mon DAO va utiliser .getConnection on va jamais l'appelé
         dao = new MotDAOImp(dbMock); // mais on va plutot passé directement le connexionH2 => DB creer réelement mais avec H2
        */ // -- Probleme de mocker des class singleton
@@ -95,6 +91,7 @@ public class MotDAOImpTest {
         logger.log("✅ Migrations Flyway appliquées");
         logger.log("✅ DAO prêt pour les tests");
         logger.log("");
+
     }
 
     @AfterEach
@@ -258,17 +255,19 @@ public class MotDAOImpTest {
     public void testAddSynonyme_Success() throws DAOExeption {
         logger.log("🧪 TEST : addSynonyme() - Ajout d'une relation de synonymie");
 
-        // Récupérer deux mots existants
-        int id1 = dao.getIDByMot("Magnifique");
-        int id2 = dao.getIDByMot("Splendide");
+        // ✅ Utiliser deux mots qui ne sont PAS déjà liés dans V11
+        // Vérifions les données de test : "Rapide" et "Lent" sont antonymes, pas synonymes
+        // Utilisons "Rapide" et "Heureux" qui ne sont pas encore liés
+        int id1 = dao.getIDByMot("Rapide");
+        int id2 = dao.getIDByMot("Heureux");
 
-        Mot mot1 = new Mot(id1, "Magnifique", null, null, null);
-        Mot mot2 = new Mot(id2, "Splendide", null, null, null);
+        Mot mot1 = new Mot(id1, "Rapide", null, null, null);
+        Mot mot2 = new Mot(id2, "Heureux", null, null, null);
 
         boolean resultat = dao.addSynonyme(mot1, mot2);
 
         assertTrue(resultat, "L'ajout de synonyme doit réussir");
-        logger.log("🔗 Synonymes liés : Magnifique ↔ Splendide");
+        logger.log("🔗 Synonymes liés : Rapide ↔ Heureux");
         logger.log("✅ Test réussi : Relation de synonymie créée");
     }
 
@@ -313,16 +312,18 @@ public class MotDAOImpTest {
     public void testAddAntonyme_Success() throws DAOExeption {
         logger.log("🧪 TEST : addAntonyme() - Ajout d'une relation d'antonymie");
 
-        int id1 = dao.getIDByMot("Heureux");
-        int id2 = dao.getIDByMot("Triste");
+        // ✅ Utiliser deux mots qui ne sont PAS déjà liés dans V11
+        // "Grand" et "Intelligent" ne sont pas liés
+        int id1 = dao.getIDByMot("Grand");
+        int id2 = dao.getIDByMot("Intelligent");
 
-        Mot mot1 = new Mot(id1, "Heureux", null, null, null);
-        Mot mot2 = new Mot(id2, "Triste", null, null, null);
+        Mot mot1 = new Mot(id1, "Grand", null, null, null);
+        Mot mot2 = new Mot(id2, "Intelligent", null, null, null);
 
         boolean resultat = dao.addAntonyme(mot1, mot2);
 
         assertTrue(resultat, "L'ajout d'antonyme doit réussir");
-        logger.log("⚡ Antonymes liés : Heureux ↔ Triste");
+        logger.log("⚡ Antonymes liés : Grand ↔ Intelligent");
         logger.log("✅ Test réussi : Relation d'antonymie créée");
     }
 
