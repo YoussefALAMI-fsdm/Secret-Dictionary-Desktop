@@ -52,16 +52,64 @@ if %ERRORLEVEL% NEQ 0 (
     exit /b 1
 )
 
+echo [OK] Docker detecte
+echo.
+
 REM ============================================
-REM 3. Demarrer PostgreSQL
+REM 3. Proposer d'executer les tests
+REM ============================================
+echo [INFO] Tests automatises
+set /p RUN_TESTS="Voulez-vous executer les tests unitaires ? (o/n) : "
+echo.
+
+if /i "%RUN_TESTS%"=="o" (
+    echo [INFO] Execution des tests...
+    echo.
+
+    REM Executer les tests avec Maven (mode silencieux)
+    where mvn >nul 2>nul
+    if %ERRORLEVEL% EQU 0 (
+        mvn test -q
+    ) else (
+        mvnw.cmd test -q
+    )
+
+    if %ERRORLEVEL% EQU 0 (
+        echo.
+        echo [OK] Tous les tests ont reussi !
+        echo [INFO] Logs detailles : logs\LogMotDAOTest.log
+        echo.
+    ) else (
+        echo.
+        echo [ERREUR] Certains tests ont echoue
+        echo [INFO] Consultez logs\LogMotDAOTest.log pour plus de details
+        echo.
+        set /p CONTINUE="Continuer malgre les erreurs ? (o/n) : "
+        if /i not "%CONTINUE%"=="o" (
+            echo Arret du script.
+            pause
+            exit /b 1
+        )
+        echo.
+    )
+)
+
+REM ============================================
+REM 4. Demarrer PostgreSQL
 REM ============================================
 echo [INFO] Demarrage de PostgreSQL...
 
 where docker-compose >nul 2>nul
 if %ERRORLEVEL% EQU 0 (
-    docker-compose up -d
+    docker-compose up -d >nul 2>&1
 ) else (
-    docker compose up -d
+    docker compose up -d >nul 2>&1
+)
+
+if %ERRORLEVEL% NEQ 0 (
+    echo [ERREUR] Echec du demarrage de PostgreSQL
+    pause
+    exit /b 1
 )
 
 echo [INFO] Attente de PostgreSQL (10 secondes)...
@@ -71,7 +119,7 @@ echo [OK] PostgreSQL pret !
 echo.
 
 REM ============================================
-REM 4. Lancer l'application
+REM 5. Lancer l'application
 REM ============================================
 echo [INFO] Lancement de l'application...
 echo.
@@ -84,7 +132,7 @@ if %ERRORLEVEL% EQU 0 (
 )
 
 REM ============================================
-REM 5. Nettoyage
+REM 6. Nettoyage
 REM ============================================
 echo.
 echo ========================================
@@ -95,11 +143,14 @@ set /p STOP="Arreter PostgreSQL ? (o/n) : "
 if /i "%STOP%"=="o" (
     where docker-compose >nul 2>nul
     if %ERRORLEVEL% EQU 0 (
-        docker-compose down
+        docker-compose down >nul 2>&1
     ) else (
-        docker compose down
+        docker compose down >nul 2>&1
     )
     echo [OK] PostgreSQL arrete
 )
 
+echo.
+echo Merci d'avoir utilise Secret Dictionary !
+echo.
 pause
