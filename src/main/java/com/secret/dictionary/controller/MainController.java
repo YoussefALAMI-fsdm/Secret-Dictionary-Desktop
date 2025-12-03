@@ -116,6 +116,7 @@ public class MainController {
 
         } catch (IOException e) {
             System.err.println("Erreur lors du chargement des composants FXML: " + e.getMessage());
+            //affiche l’exception complète (type + message) et la pile d’appels sur la sortie d’erreur standard
             e.printStackTrace();
         }
     }
