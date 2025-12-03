@@ -10,7 +10,7 @@ public class SimpleLogger { // On creer un petit loger pour enregister les logs 
 
     private final String filePath ; // chemin pour ecris les logs
 
-    public SimpleLogger(String filePath) {
+    public SimpleLogger(String filePath , boolean reset ) {
         this.filePath = filePath;
 
         // Vérifie si le dossier existe, sinon le créer
@@ -22,13 +22,21 @@ public class SimpleLogger { // On creer un petit loger pour enregister les logs 
                 System.err.println("Impossible de créer le dossier : " + parentDir.getAbsolutePath());
             }
         }
+
+        // Si reset = true, supprime le fichier existant pour démarrer propre
+        if (reset && file.exists()) {
+            boolean deleted = file.delete();
+            if (!deleted) {
+                System.err.println("Impossible de supprimer l'ancien fichier de log : " + filePath);
+            }
+        }
     }
 
     public void log(String message) {
 
         try ( BufferedWriter writer = new BufferedWriter(new FileWriter(filePath, true))) { // try with ressources
             // true => mode append, ajoute à la fin du fichier
-            String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+            String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")); // Creer un LocalDateTime pour enregister les dates exact
             writer.write(timestamp + " - " + message);
             writer.newLine();
         } catch (IOException e) {
