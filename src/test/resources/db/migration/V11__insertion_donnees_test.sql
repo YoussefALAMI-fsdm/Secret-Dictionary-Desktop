@@ -1,5 +1,5 @@
 -- ================================================================
--- SCRIPT V11 : Insertion de données de test complètes (H2)
+-- SCRIPT V11 : Insertion de données de test complètes
 -- 30 mots avec définitions, catégories, emojis, synonymes et antonymes
 -- ================================================================
 
@@ -44,20 +44,27 @@ INSERT INTO mots (mot, def, categorie, emojie) VALUES
 -- Expressions (3 mots)
 ('Bonne chance', 'Souhait de réussite', 'Expression', '🍀'),
 ('Mauvaise chance', 'Souhait négatif ou malchance', 'Expression', '🌧️'),
-('Au revoir', 'Formule de salutation pour se séparer', 'Expression', '👋');
+('Au revoir', 'Formule de salutation pour se séparer', 'Expression', '👋')
+ON CONFLICT (mot) DO NOTHING;
 
 -- ========================================
 -- AJOUT DE MOTS SUPPLÉMENTAIRES (AVANT LES RELATIONS)
 -- ========================================
 
 INSERT INTO mots (mot, def, categorie, emojie) VALUES
+-- Verbes supplémentaires pour synonymes
 ('Accroître', 'Augmenter en quantité ou en intensité', 'Verbe', '📊'),
 ('Réduire', 'Diminuer en quantité ou en intensité', 'Verbe', '⬇️'),
 ('Terminer', 'Mener à son terme, finir', 'Verbe', '🏁'),
+
+-- Adjectifs supplémentaires
 ('Stupide', 'Qui manque d''intelligence', 'Adjectif', '🤪'),
 ('Affreux', 'Extrêmement laid ou désagréable', 'Adjectif', '👹'),
+
+-- Noms supplémentaires
 ('Haine', 'Sentiment violent d''aversion', 'Nom', '😡'),
-('Lâcheté', 'Manque de courage', 'Nom', '🏃‍♂️');
+('Lâcheté', 'Manque de courage', 'Nom', '🏃‍♂️')
+ON CONFLICT (mot) DO NOTHING;
 
 -- ========================================
 -- RELATIONS DE SYNONYMIE
@@ -66,14 +73,15 @@ INSERT INTO mots (mot, def, categorie, emojie) VALUES
 INSERT INTO mots_synonymes (mot_id, synonyme_id) VALUES
 ((SELECT id FROM mots WHERE mot = 'Magnifique'), (SELECT id FROM mots WHERE mot = 'Splendide')),
 ((SELECT id FROM mots WHERE mot = 'Augmenter'), (SELECT id FROM mots WHERE mot = 'Accroître')),
-((SELECT id FROM mots WHERE mot = 'Diminuer'), (SELECT id FROM mots WHERE mot = 'Réduire'));
+((SELECT id FROM mots WHERE mot = 'Diminuer'), (SELECT id FROM mots WHERE mot = 'Réduire'))
+ON CONFLICT DO NOTHING;
 
 -- ========================================
 -- RELATIONS D'ANTONYMIE
 -- ========================================
 
-INSERT INTO mots_antonymes (mot_id, antonyme_id) VALUES
 -- Antonymes de verbes
+INSERT INTO mots_antonymes (mot_id, antonyme_id) VALUES
 ((SELECT id FROM mots WHERE mot = 'Apprendre'), (SELECT id FROM mots WHERE mot = 'Oublier')),
 ((SELECT id FROM mots WHERE mot = 'Créer'), (SELECT id FROM mots WHERE mot = 'Détruire')),
 ((SELECT id FROM mots WHERE mot = 'Construire'), (SELECT id FROM mots WHERE mot = 'Démolir')),
@@ -92,14 +100,41 @@ INSERT INTO mots_antonymes (mot_id, antonyme_id) VALUES
 ((SELECT id FROM mots WHERE mot = 'Courage'), (SELECT id FROM mots WHERE mot = 'Peur')),
 
 -- Antonymes d'expressions
-((SELECT id FROM mots WHERE mot = 'Bonne chance'), (SELECT id FROM mots WHERE mot = 'Mauvaise chance'));
+((SELECT id FROM mots WHERE mot = 'Bonne chance'), (SELECT id FROM mots WHERE mot = 'Mauvaise chance'))
+ON CONFLICT DO NOTHING;
 
 -- ========================================
 -- RELATIONS D'ANTONYMIE SUPPLÉMENTAIRES
 -- ========================================
 
+-- Antonymes supplémentaires
 INSERT INTO mots_antonymes (mot_id, antonyme_id) VALUES
 ((SELECT id FROM mots WHERE mot = 'Intelligent'), (SELECT id FROM mots WHERE mot = 'Stupide')),
 ((SELECT id FROM mots WHERE mot = 'Splendide'), (SELECT id FROM mots WHERE mot = 'Affreux')),
 ((SELECT id FROM mots WHERE mot = 'Amour'), (SELECT id FROM mots WHERE mot = 'Haine')),
-((SELECT id FROM mots WHERE mot = 'Courage'), (SELECT id FROM mots WHERE mot = 'Lâcheté'));
+((SELECT id FROM mots WHERE mot = 'Courage'), (SELECT id FROM mots WHERE mot = 'Lâcheté'))
+ON CONFLICT DO NOTHING;
+
+-- ========================================
+-- VÉRIFICATION DES DONNÉES INSÉRÉES
+-- ========================================
+
+-- Afficher le nombre total de mots
+DO $$
+DECLARE
+    total_mots INT;
+    total_synonymes INT;
+    total_antonymes INT;
+BEGIN
+    SELECT COUNT(*) INTO total_mots FROM mots;
+    SELECT COUNT(*) INTO total_synonymes FROM mots_synonymes;
+    SELECT COUNT(*) INTO total_antonymes FROM mots_antonymes;
+
+    RAISE NOTICE '====================================';
+    RAISE NOTICE 'RÉSUMÉ DE L''INSERTION';
+    RAISE NOTICE '====================================';
+    RAISE NOTICE 'Total de mots insérés: %', total_mots;
+    RAISE NOTICE 'Total de relations de synonymes: %', total_synonymes;
+    RAISE NOTICE 'Total de relations d''antonymes: %', total_antonymes;
+    RAISE NOTICE '====================================';
+END $$;

@@ -19,6 +19,10 @@ public class MotDAOImp implements MotDAO { // Defenir le CRUD complet ( create, 
         this.connexion = db.getConnection() ;
     }
 
+    public MotDAOImp ( Connection connection ) { // Contructeur pour le test ( prend directement connexion H2 )
+        this.connexion = connection;
+    }
+
     @Override
     public List<String> findAllMot() throws DAOExeption { // Futur modification si besion : Choisir de retourner List<Mot> plutôt que List<String> dans ton DAO, même si tu ne récupères qu’une seule colonne aujourd’hui, c’est une décision orientée vers la robustesse et l’évolutivité.
 
