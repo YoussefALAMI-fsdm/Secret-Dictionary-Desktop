@@ -16,6 +16,7 @@ import org.junit.jupiter.api.*;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.Statement;
 import java.util.List;
 import java.util.Map;
 
@@ -76,9 +77,19 @@ public class MotDAOImpTest {
         flyway.clean(); // Nettoie la base avant chaque test
         flyway.migrate();
 
-        DataBase dbMock = mock(DataBase.class); // Puiseque notre DAO prend une BD en arguement alors on le mock
+        try (Statement st = connexionH2.createStatement()) {
+            st.execute("DELETE FROM mots_synonymes");
+            st.execute("DELETE FROM mots_antonymes");
+        }
+
+
+       /* DataBase dbMock = mock(DataBase.class); // Puiseque notre DAO prend une BD en arguement alors on le mock
         when(dbMock.getConnection()).thenReturn(connexionH2);  // Quand mon DAO va utiliser .getConnection on va jamais l'appelé
         dao = new MotDAOImp(dbMock); // mais on va plutot passé directement le connexionH2 => DB creer réelement mais avec H2
+       */ // -- Probleme de mocker des class singleton
+        // # Solution : Creer constructuer avec Connection direct en DAO
+
+        dao = new MotDAOImp(connexionH2);
 
         logger.log("✅ Base de données H2 initialisée avec succès");
         logger.log("✅ Migrations Flyway appliquées");
