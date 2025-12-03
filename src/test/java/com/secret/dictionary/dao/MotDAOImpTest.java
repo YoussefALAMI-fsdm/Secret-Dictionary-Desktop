@@ -1,4 +1,4 @@
 package com.secret.dictionary.dao;
 
-public class MotDAOTest {
+public class MotDAOImpTest {
 }
