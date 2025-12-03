@@ -287,6 +287,5 @@ public class MotDAOImp implements MotDAO { // Defenir le CRUD complet ( create, 
         } catch (SQLException e) {
             throw new DAOExeption("Erreur lors du rafraîchissement de la MV", e);
         }
-
     }
 }
