@@ -90,19 +90,58 @@ fi
 echo ""
 
 # ============================================
-# 4. Démarrer PostgreSQL
+# 4. Proposer d'exécuter les tests
 # ============================================
-echo "🔧 Démarrage de PostgreSQL..."
+echo -e "${BLUE}🧪 Tests automatisés${NC}"
+echo "Voulez-vous exécuter les tests unitaires avant de lancer l'application ?"
+read -p "(o/n) : " RUN_TESTS
+echo ""
+
+if [ "$RUN_TESTS" = "o" ] || [ "$RUN_TESTS" = "O" ]; then
+    echo -e "${CYAN}🧪 Exécution des tests...${NC}"
+    echo ""
+
+    # Exécuter les tests avec Maven
+    if command -v mvn &> /dev/null; then
+        mvn test -q
+    else
+        chmod +x mvnw
+        ./mvnw test -q
+    fi
+
+    TEST_RESULT=$?
+
+    echo ""
+    if [ $TEST_RESULT -eq 0 ]; then
+        echo -e "${GREEN}✅ Tous les tests ont réussi !${NC}"
+        echo -e "${GREEN}📝 Logs détaillés : logs/LogMotDAOTest.log${NC}"
+    else
+        echo -e "${RED}❌ Certains tests ont échoué${NC}"
+        echo -e "${YELLOW}📝 Consultez logs/LogMotDAOTest.log pour plus de détails${NC}"
+        echo ""
+        read -p "Continuer malgré les erreurs ? (o/n) : " CONTINUE
+        if [ "$CONTINUE" != "o" ] && [ "$CONTINUE" != "O" ]; then
+            echo "Arrêt du script."
+            exit 1
+        fi
+    fi
+    echo ""
+fi
+
+# ============================================
+# 5. Démarrer PostgreSQL
+# ============================================
+echo -e "${CYAN}🔧 Démarrage de PostgreSQL...${NC}"
 
 # Vérifier si docker-compose ou docker compose existe
 if command -v docker-compose &> /dev/null; then
     if [ -n "$USE_SUDO" ] && [ "$USE_SUDO" = "o" ]; then
-        sudo docker-compose up -d
+        sudo docker-compose up -d > /dev/null 2>&1
     else
-        docker-compose up -d
+        docker-compose up -d > /dev/null 2>&1
     fi
 else
-    $COMPOSE_CMD up -d
+    $COMPOSE_CMD up -d > /dev/null 2>&1
 fi
 
 if [ $? -ne 0 ]; then
@@ -117,9 +156,9 @@ echo -e "${GREEN}✅ PostgreSQL prêt !${NC}"
 echo ""
 
 # ============================================
-# 5. Lancer l'application
+# 6. Lancer l'application
 # ============================================
-echo "🚀 Lancement de l'application..."
+echo -e "${CYAN}🚀 Lancement de l'application...${NC}"
 echo ""
 
 if command -v mvn &> /dev/null; then
@@ -130,24 +169,28 @@ else
 fi
 
 # ============================================
-# 6. Nettoyage
+# 7. Nettoyage
 # ============================================
 echo ""
-echo "========================================"
-echo "  Application fermée"
-echo "========================================"
+echo -e "${CYAN}========================================${NC}"
+echo -e "${CYAN}  Application fermée${NC}"
+echo -e "${CYAN}========================================${NC}"
 echo ""
 read -p "Arrêter PostgreSQL ? (o/n) : " STOP
 
 if [ "$STOP" = "o" ] || [ "$STOP" = "O" ]; then
     if command -v docker-compose &> /dev/null; then
         if [ -n "$USE_SUDO" ] && [ "$USE_SUDO" = "o" ]; then
-            sudo docker-compose down
+            sudo docker-compose down > /dev/null 2>&1
         else
-            docker-compose down
+            docker-compose down > /dev/null 2>&1
         fi
     else
-        $COMPOSE_CMD down
+        $COMPOSE_CMD down > /dev/null 2>&1
     fi
     echo -e "${GREEN}✅ PostgreSQL arrêté${NC}"
 fi
+
+echo ""
+echo -e "${GREEN}Merci d'avoir utilisé Secret Dictionary !${NC}"
+echo ""

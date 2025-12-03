@@ -31,9 +31,9 @@ Une application JavaFX moderne et élégante pour la gestion de mots et définit
 ### 🏷️ Catégorisation et organisation
 
 - 📁 **Catégories prédéfinies** : General, Verbe, Adjectif, Nom, Adverbe, Expression
-- 🎯 **Recherche par catégorie** : filtrez les mots selon leur catégorie
-- 😊 **Recherche par emoji** : trouvez tous les mots associés à un emoji spécifique
-- 📊 **Statistiques** : comptage du nombre de mots par catégorie
+- 📊 **Vue Statistiques** : visualisation du nombre de mots par catégorie avec graphiques
+- 📈 **Barres de progression** : représentation visuelle de la répartition des mots
+- 🎯 **Navigation intuitive** : basculez facilement entre statistiques et détails des mots
 
 ### 🎨 Interface utilisateur
 
@@ -44,6 +44,7 @@ Une application JavaFX moderne et élégante pour la gestion de mots et définit
 - 🎯 **Dialogues modaux élégants** pour toutes les opérations
 - ✨ **Animations fluides** et effets visuels
 - 🖼️ **Image de fond personnalisée** pour une expérience visuelle immersive
+- 📊 **Vue statistiques au démarrage** : aperçu immédiat de votre dictionnaire
 
 ### 🗄️ Base de données avancée
 
@@ -54,6 +55,15 @@ Une application JavaFX moderne et élégante pour la gestion de mots et définit
 - 🔗 **Relations N-N bidirectionnelles** pour synonymes et antonymes
 - 🛡️ **Contraintes d'intégrité** avec suppression en cascade
 - 📝 **Données de test** : 30+ mots avec relations pré-configurées
+- 📈 **Materialized View** : calcul optimisé des statistiques par catégorie
+
+### 🧪 Tests automatisés
+
+- ✅ **Tests unitaires** : couverture complète de la couche DAO avec JUnit 5
+- 🗄️ **Base H2 en mémoire** : tests rapides sans impacter PostgreSQL
+- 📊 **Tests de relations** : vérification des synonymes et antonymes
+- 📝 **Logs détaillés** : fichiers de logs pour chaque session de tests
+- 🔄 **Migrations de test** : scripts SQL adaptés pour H2
 
 <br>
 
@@ -71,6 +81,7 @@ Une application JavaFX moderne et élégante pour la gestion de mots et définit
 | **Migrations** | Flyway 10.0 pour gestion automatique du schéma            |
 | **Build** | Maven avec module-info.java (Java Platform Module System) |
 | **Conteneurisation** | Docker & Docker Compose                                   |
+| **Tests** | JUnit 5, H2 Database, Mockito                            |
 
 <br>
 
@@ -119,6 +130,7 @@ start.bat
 Le script automatisé va :
 - ✅ Vérifier que Java 17+ est installé
 - ✅ Vérifier que Docker est installé et configuré
+- 🧪 **Proposer d'exécuter les tests** (optionnel)
 - 🔧 Démarrer PostgreSQL automatiquement
 - 📊 Charger les données de test (30+ mots)
 - 🚀 Lancer l'application JavaFX
@@ -127,12 +139,61 @@ Le script automatisé va :
 
 Une fois lancée, vous pouvez :
 
+- 📊 **Voir les statistiques** : Vue par défaut avec répartition par catégorie
 - 🔍 **Rechercher un mot** : Bouton "🔍 Recherche" avec autocomplétion floue
 - ➕ **Ajouter un mot** : Bouton "➕ Ajouter" (mot, définition, catégorie, emoji)
 - 🔗 **Créer un synonyme** : Bouton "🔗 Ajout de synonyme" avec autocomplétion
 - ⚡ **Créer un antonyme** : Bouton "⚡ Ajout d'antonyme" avec autocomplétion
 - 📚 **Parcourir tous les mots** : Liste de droite avec emojis (cliquez pour voir les détails)
 - ✏️ **Modifier un mot** : Bouton "✏️ Modifier" dans la vue détails (modifiez tout : mot, définition, catégorie, emoji)
+
+<br>
+
+---
+
+<br>
+
+## 🧪 Exécution des Tests
+
+### Tests automatisés
+
+Le projet inclut une suite complète de tests unitaires pour la couche DAO.
+
+#### Exécuter les tests via Maven
+
+```bash
+# Exécuter tous les tests
+mvn test
+
+# Ou avec Maven Wrapper
+./mvnw test        # Linux/macOS
+mvnw.cmd test      # Windows
+```
+
+#### Exécuter les tests via les scripts de démarrage
+
+Les scripts `start.sh` et `start.bat` proposent maintenant d'exécuter les tests avant de lancer l'application :
+
+```bash
+./start.sh
+# Répondez "o" (oui) ou "n" (non) quand demandé
+```
+
+#### Consulter les logs de tests
+
+Les résultats détaillés des tests sont enregistrés dans :
+```
+logs/LogMotDAOTest.log
+```
+
+### Couverture des tests
+
+Les tests couvrent :
+- ✅ Ajout, recherche, modification de mots
+- ✅ Gestion des synonymes et antonymes
+- ✅ Statistiques par catégorie
+- ✅ Recherche floue et autocomplétion
+- ✅ Cas limites et erreurs
 
 <br>
 
@@ -183,6 +244,7 @@ Secret-Dictionary-Desktop/
 │   │   │   │   ├── MenuController.java                # Menu latéral gauche
 │   │   │   │   ├── WordListController.java            # Liste des mots (droite)
 │   │   │   │   ├── WordDetailsController.java         # Détails d'un mot (centre)
+│   │   │   │   ├── StatisticsViewController.java      # Vue statistiques (centre)
 │   │   │   │   ├── SearchDialogController.java        # Dialogue de recherche
 │   │   │   │   ├── AddWordDialogController.java       # Dialogue ajout mot
 │   │   │   │   ├── UpdateWordDialogController.java    # Dialogue modification
@@ -209,7 +271,8 @@ Secret-Dictionary-Desktop/
 │   │       │   │   ├── main-view.fxml                 # Vue principale
 │   │       │   │   ├── side-menu.fxml                 # Menu latéral
 │   │       │   │   ├── word-list.fxml                 # Liste mots
-│   │       │   │   └── word-details.fxml              # Détails mot
+│   │       │   │   ├── word-details.fxml              # Détails mot
+│   │       │   │   └── statistics-view.fxml           # Vue statistiques
 │   │       │   └── styles/
 │   │       │       ├── style.css                      # Import principal
 │   │       │       ├── base.css                       # Variables & base
@@ -217,7 +280,8 @@ Secret-Dictionary-Desktop/
 │   │       │       ├── panels.css                     # Styles panneaux
 │   │       │       ├── lists.css                      # Styles listes
 │   │       │       ├── dialogs.css                    # Styles dialogues
-│   │       │       ├── buttonModifier.css             # Styles modification
+│   │       │       ├── statistics.css                 # Styles statistiques
+│   │       │       ├── synonymes-antonymes.css        # Styles relations
 │   │       │       └── fond-ecran.jpg                 # Image de fond
 │   │       └── db/migration/
 │   │           ├── V1__creation_table_mots.sql
@@ -230,7 +294,18 @@ Secret-Dictionary-Desktop/
 │   │           ├── V8__creation_table_mots_synonymes.sql
 │   │           ├── V9__creation_table_mots_antonymes.sql
 │   │           ├── V10__creation_index_unique_mot_couvrant_id.sql
-│   │           └── V11__insertion_donnees_test.sql
+│   │           ├── V11__insertion_donnees_test.sql
+│   │           └── V12__materialized_view_mot_count.sql
+│   └── test/
+│       ├── java/com/secret/dictionary/
+│       │   ├── dao/
+│       │   │   └── MotDAOImpTest.java                 # Tests unitaires DAO
+│       │   └── utils/
+│       │       └── SimpleLogger.java                  # Logger pour tests
+│       └── resources/db/migration/
+│           └── [Scripts SQL adaptés pour H2]
+├── logs/
+│   └── LogMotDAOTest.log                              # Logs des tests
 ├── docker-compose.yml              # Configuration PostgreSQL
 ├── start.sh                        # Script démarrage Linux/macOS
 ├── start.bat                       # Script démarrage Windows
@@ -244,31 +319,48 @@ Secret-Dictionary-Desktop/
 
 <br>
 
-## 🎨 Captures d'écran
+## 📚 Documentation technique
 
-> *À venir : captures d'écran de l'interface*
+### Schéma de base de données
 
-<br>
+```sql
+-- Table principale
+mots (
+    id SERIAL PRIMARY KEY,
+    mot CITEXT NOT NULL UNIQUE,
+    def TEXT,
+    categorie TEXT DEFAULT 'General',
+    emojie TEXT
+)
 
----
+-- Table des synonymes (N-N bidirectionnelle)
+mots_synonymes (
+    mot_id INT REFERENCES mots(id) ON DELETE CASCADE,
+    synonyme_id INT REFERENCES mots(id) ON DELETE CASCADE,
+    PRIMARY KEY (mot_id, synonyme_id),
+    CHECK (mot_id <> synonyme_id)
+)
 
-<br>
+-- Table des antonymes (N-N bidirectionnelle)
+mots_antonymes (
+    mot_id INT REFERENCES mots(id) ON DELETE CASCADE,
+    antonyme_id INT REFERENCES mots(id) ON DELETE CASCADE,
+    PRIMARY KEY (mot_id, antonyme_id),
+    CHECK (mot_id <> antonyme_id)
+)
 
-## 🚀 Fonctionnalités à venir
+-- Materialized View pour les statistiques
+mv_mots_count_par_categorie (
+    categorie TEXT PRIMARY KEY,
+    compteur INT
+)
+```
 
-Les fonctionnalités suivantes sont **déjà implémentées dans la couche Service** mais ne disposent pas encore d'interface graphique :
+### Index optimisés
 
-### 📊 Recherche avancée
-- **Recherche par catégorie** : Filtrer et afficher tous les mots d'une catégorie spécifique
-- **Recherche par emoji** : Trouver tous les mots associés à un emoji donné
-- **Recherche de synonymes** : Interface dédiée pour explorer les relations de synonymie
-- **Recherche d'antonymes** : Interface dédiée pour explorer les relations d'antonymie
-
-### 📈 Statistiques et visualisation
-- **Tableau de bord** : Vue d'ensemble avec statistiques (nombre de mots par catégorie)
-- **Graphiques** : Visualisation de la répartition des mots par catégorie
-
-> **Note technique** : Toutes ces fonctionnalités disposent déjà de méthodes complètes dans `MotService.java` et `MotDAO.java`. Seule l'interface graphique JavaFX reste à développer.
+- `idx_mot_covering` : Index unique couvrant sur `mot` incluant `id`
+- `idx_mots_trgm` : Index GIN pour recherche floue (pg_trgm)
+- Clés primaires automatiques sur `id`, `(mot_id, synonyme_id)`, `(mot_id, antonyme_id)`
 
 <br>
 
@@ -339,52 +431,18 @@ sudo apt install fonts-noto-color-emoji
 sudo pacman -S noto-fonts-emoji
 ```
 
-<br>
+### ❌ Les tests échouent
 
----
+**Cause** : Problème avec H2 ou les migrations de test.
 
-<br>
+**Solution** :
+```bash
+# Nettoyer et recompiler
+mvn clean test
 
-## 📚 Documentation technique
-
-### Schéma de base de données
-
-```sql
--- Table principale
-mots (
-    id SERIAL PRIMARY KEY,
-    mot CITEXT NOT NULL UNIQUE,
-    def TEXT,
-    categorie TEXT DEFAULT 'General',
-    emojie TEXT
-)
-
--- Table des synonymes (N-N bidirectionnelle)
-mots_synonymes (
-    mot_id INT REFERENCES mots(id) ON DELETE CASCADE,
-    synonyme_id INT REFERENCES mots(id) ON DELETE CASCADE,
-    PRIMARY KEY (mot_id, synonyme_id),
-    CHECK (mot_id <> synonyme_id)
-)
-
--- Table des antonymes (N-N bidirectionnelle)
-mots_antonymes (
-    mot_id INT REFERENCES mots(id) ON DELETE CASCADE,
-    antonyme_id INT REFERENCES mots(id) ON DELETE CASCADE,
-    PRIMARY KEY (mot_id, antonyme_id),
-    CHECK (mot_id <> antonyme_id)
-)
+# Vérifier les logs
+cat logs/LogMotDAOTest.log
 ```
-
-### Index optimisés
-
-- `idx_mot_covering` : Index unique couvrant sur `mot` incluant `id`
-- `idx_mots_trgm` : Index GIN pour recherche floue (pg_trgm)
-- Clés primaires automatiques sur `id`, `(mot_id, synonyme_id)`, `(mot_id, antonyme_id)`
-
-<br>
-
----
 
 <br>
 
@@ -411,6 +469,8 @@ mots_antonymes (
 - **Flyway** pour la gestion élégante des migrations de base de données
 - **JavaFX** pour le framework d'interface graphique moderne
 - **Docker** pour la conteneurisation simplifiée
+- **JUnit 5** pour le framework de tests robuste
+- **H2 Database** pour les tests rapides en mémoire
 
 <br>
 
