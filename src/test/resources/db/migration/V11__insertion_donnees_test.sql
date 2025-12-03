@@ -1,13 +1,13 @@
 -- ================================================================
--- SCRIPT V11 : Insertion de données de test complètes
+-- SCRIPT V11 : Insertion de données de test complètes (VERSION H2)
 -- 30 mots avec définitions, catégories, emojis, synonymes et antonymes
 -- ================================================================
 
 -- ========================================
--- INSERTION DES MOTS
+-- INSERTION DES MOTS (H2 : MERGE au lieu de INSERT ... ON CONFLICT)
 -- ========================================
 
-INSERT INTO mots (mot, def, categorie, emojie) VALUES
+MERGE INTO mots (mot, def, categorie, emojie) KEY(mot) VALUES
 -- Verbes (10 mots)
 ('Apprendre', 'Acquérir des connaissances par l''étude ou l''expérience', 'Verbe', '📚'),
 ('Enseigner', 'Transmettre des connaissances à quelqu''un', 'Verbe', '👨‍🏫'),
@@ -44,14 +44,13 @@ INSERT INTO mots (mot, def, categorie, emojie) VALUES
 -- Expressions (3 mots)
 ('Bonne chance', 'Souhait de réussite', 'Expression', '🍀'),
 ('Mauvaise chance', 'Souhait négatif ou malchance', 'Expression', '🌧️'),
-('Au revoir', 'Formule de salutation pour se séparer', 'Expression', '👋')
-ON CONFLICT (mot) DO NOTHING;
+('Au revoir', 'Formule de salutation pour se séparer', 'Expression', '👋');
 
 -- ========================================
--- AJOUT DE MOTS SUPPLÉMENTAIRES (AVANT LES RELATIONS)
+-- AJOUT DE MOTS SUPPLÉMENTAIRES
 -- ========================================
 
-INSERT INTO mots (mot, def, categorie, emojie) VALUES
+MERGE INTO mots (mot, def, categorie, emojie) KEY(mot) VALUES
 -- Verbes supplémentaires pour synonymes
 ('Accroître', 'Augmenter en quantité ou en intensité', 'Verbe', '📊'),
 ('Réduire', 'Diminuer en quantité ou en intensité', 'Verbe', '⬇️'),
@@ -63,78 +62,133 @@ INSERT INTO mots (mot, def, categorie, emojie) VALUES
 
 -- Noms supplémentaires
 ('Haine', 'Sentiment violent d''aversion', 'Nom', '😡'),
-('Lâcheté', 'Manque de courage', 'Nom', '🏃‍♂️')
-ON CONFLICT (mot) DO NOTHING;
+('Lâcheté', 'Manque de courage', 'Nom', '🏃‍♂️');
 
 -- ========================================
 -- RELATIONS DE SYNONYMIE
 -- ========================================
 
-INSERT INTO mots_synonymes (mot_id, synonyme_id) VALUES
-((SELECT id FROM mots WHERE mot = 'Magnifique'), (SELECT id FROM mots WHERE mot = 'Splendide')),
-((SELECT id FROM mots WHERE mot = 'Augmenter'), (SELECT id FROM mots WHERE mot = 'Accroître')),
-((SELECT id FROM mots WHERE mot = 'Diminuer'), (SELECT id FROM mots WHERE mot = 'Réduire'))
-ON CONFLICT DO NOTHING;
+-- H2 : Utiliser INSERT simple (les PRIMARY KEY géreront les doublons)
+INSERT INTO mots_synonymes (mot_id, synonyme_id)
+SELECT m1.id, m2.id
+FROM mots m1
+JOIN mots m2 ON m2.mot = 'Splendide'
+WHERE m1.mot = 'Magnifique'
+AND NOT EXISTS (
+    SELECT 1 FROM mots_synonymes WHERE mot_id = m1.id AND synonyme_id = m2.id
+);
+
+INSERT INTO mots_synonymes (mot_id, synonyme_id)
+SELECT m1.id, m2.id
+FROM mots m1
+JOIN mots m2 ON m2.mot = 'Accroître'
+WHERE m1.mot = 'Augmenter'
+AND NOT EXISTS (
+    SELECT 1 FROM mots_synonymes WHERE mot_id = m1.id AND synonyme_id = m2.id
+);
+
+INSERT INTO mots_synonymes (mot_id, synonyme_id)
+SELECT m1.id, m2.id
+FROM mots m1
+JOIN mots m2 ON m2.mot = 'Réduire'
+WHERE m1.mot = 'Diminuer'
+AND NOT EXISTS (
+    SELECT 1 FROM mots_synonymes WHERE mot_id = m1.id AND synonyme_id = m2.id
+);
 
 -- ========================================
 -- RELATIONS D'ANTONYMIE
 -- ========================================
 
--- Antonymes de verbes
-INSERT INTO mots_antonymes (mot_id, antonyme_id) VALUES
-((SELECT id FROM mots WHERE mot = 'Apprendre'), (SELECT id FROM mots WHERE mot = 'Oublier')),
-((SELECT id FROM mots WHERE mot = 'Créer'), (SELECT id FROM mots WHERE mot = 'Détruire')),
-((SELECT id FROM mots WHERE mot = 'Construire'), (SELECT id FROM mots WHERE mot = 'Démolir')),
-((SELECT id FROM mots WHERE mot = 'Augmenter'), (SELECT id FROM mots WHERE mot = 'Diminuer')),
-((SELECT id FROM mots WHERE mot = 'Commencer'), (SELECT id FROM mots WHERE mot = 'Terminer')),
+-- Antonymes de verbes (une relation à la fois)
+INSERT INTO mots_antonymes (mot_id, antonyme_id)
+SELECT m1.id, m2.id FROM mots m1 JOIN mots m2 ON m2.mot = 'Oublier'
+WHERE m1.mot = 'Apprendre'
+AND NOT EXISTS (SELECT 1 FROM mots_antonymes WHERE mot_id = m1.id AND antonyme_id = m2.id);
+
+INSERT INTO mots_antonymes (mot_id, antonyme_id)
+SELECT m1.id, m2.id FROM mots m1 JOIN mots m2 ON m2.mot = 'Détruire'
+WHERE m1.mot = 'Créer'
+AND NOT EXISTS (SELECT 1 FROM mots_antonymes WHERE mot_id = m1.id AND antonyme_id = m2.id);
+
+INSERT INTO mots_antonymes (mot_id, antonyme_id)
+SELECT m1.id, m2.id FROM mots m1 JOIN mots m2 ON m2.mot = 'Démolir'
+WHERE m1.mot = 'Construire'
+AND NOT EXISTS (SELECT 1 FROM mots_antonymes WHERE mot_id = m1.id AND antonyme_id = m2.id);
+
+INSERT INTO mots_antonymes (mot_id, antonyme_id)
+SELECT m1.id, m2.id FROM mots m1 JOIN mots m2 ON m2.mot = 'Diminuer'
+WHERE m1.mot = 'Augmenter'
+AND NOT EXISTS (SELECT 1 FROM mots_antonymes WHERE mot_id = m1.id AND antonyme_id = m2.id);
+
+INSERT INTO mots_antonymes (mot_id, antonyme_id)
+SELECT m1.id, m2.id FROM mots m1 JOIN mots m2 ON m2.mot = 'Terminer'
+WHERE m1.mot = 'Commencer'
+AND NOT EXISTS (SELECT 1 FROM mots_antonymes WHERE mot_id = m1.id AND antonyme_id = m2.id);
 
 -- Antonymes d'adjectifs
-((SELECT id FROM mots WHERE mot = 'Magnifique'), (SELECT id FROM mots WHERE mot = 'Horrible')),
-((SELECT id FROM mots WHERE mot = 'Rapide'), (SELECT id FROM mots WHERE mot = 'Lent')),
-((SELECT id FROM mots WHERE mot = 'Grand'), (SELECT id FROM mots WHERE mot = 'Petit')),
-((SELECT id FROM mots WHERE mot = 'Heureux'), (SELECT id FROM mots WHERE mot = 'Triste')),
+INSERT INTO mots_antonymes (mot_id, antonyme_id)
+SELECT m1.id, m2.id FROM mots m1 JOIN mots m2 ON m2.mot = 'Horrible'
+WHERE m1.mot = 'Magnifique'
+AND NOT EXISTS (SELECT 1 FROM mots_antonymes WHERE mot_id = m1.id AND antonyme_id = m2.id);
+
+INSERT INTO mots_antonymes (mot_id, antonyme_id)
+SELECT m1.id, m2.id FROM mots m1 JOIN mots m2 ON m2.mot = 'Lent'
+WHERE m1.mot = 'Rapide'
+AND NOT EXISTS (SELECT 1 FROM mots_antonymes WHERE mot_id = m1.id AND antonyme_id = m2.id);
+
+INSERT INTO mots_antonymes (mot_id, antonyme_id)
+SELECT m1.id, m2.id FROM mots m1 JOIN mots m2 ON m2.mot = 'Petit'
+WHERE m1.mot = 'Grand'
+AND NOT EXISTS (SELECT 1 FROM mots_antonymes WHERE mot_id = m1.id AND antonyme_id = m2.id);
+
+INSERT INTO mots_antonymes (mot_id, antonyme_id)
+SELECT m1.id, m2.id FROM mots m1 JOIN mots m2 ON m2.mot = 'Triste'
+WHERE m1.mot = 'Heureux'
+AND NOT EXISTS (SELECT 1 FROM mots_antonymes WHERE mot_id = m1.id AND antonyme_id = m2.id);
 
 -- Antonymes de noms
-((SELECT id FROM mots WHERE mot = 'Connaissance'), (SELECT id FROM mots WHERE mot = 'Ignorance')),
-((SELECT id FROM mots WHERE mot = 'Joie'), (SELECT id FROM mots WHERE mot = 'Tristesse')),
-((SELECT id FROM mots WHERE mot = 'Courage'), (SELECT id FROM mots WHERE mot = 'Peur')),
+INSERT INTO mots_antonymes (mot_id, antonyme_id)
+SELECT m1.id, m2.id FROM mots m1 JOIN mots m2 ON m2.mot = 'Ignorance'
+WHERE m1.mot = 'Connaissance'
+AND NOT EXISTS (SELECT 1 FROM mots_antonymes WHERE mot_id = m1.id AND antonyme_id = m2.id);
+
+INSERT INTO mots_antonymes (mot_id, antonyme_id)
+SELECT m1.id, m2.id FROM mots m1 JOIN mots m2 ON m2.mot = 'Tristesse'
+WHERE m1.mot = 'Joie'
+AND NOT EXISTS (SELECT 1 FROM mots_antonymes WHERE mot_id = m1.id AND antonyme_id = m2.id);
+
+INSERT INTO mots_antonymes (mot_id, antonyme_id)
+SELECT m1.id, m2.id FROM mots m1 JOIN mots m2 ON m2.mot = 'Peur'
+WHERE m1.mot = 'Courage'
+AND NOT EXISTS (SELECT 1 FROM mots_antonymes WHERE mot_id = m1.id AND antonyme_id = m2.id);
 
 -- Antonymes d'expressions
-((SELECT id FROM mots WHERE mot = 'Bonne chance'), (SELECT id FROM mots WHERE mot = 'Mauvaise chance'))
-ON CONFLICT DO NOTHING;
+INSERT INTO mots_antonymes (mot_id, antonyme_id)
+SELECT m1.id, m2.id FROM mots m1 JOIN mots m2 ON m2.mot = 'Mauvaise chance'
+WHERE m1.mot = 'Bonne chance'
+AND NOT EXISTS (SELECT 1 FROM mots_antonymes WHERE mot_id = m1.id AND antonyme_id = m2.id);
 
 -- ========================================
 -- RELATIONS D'ANTONYMIE SUPPLÉMENTAIRES
 -- ========================================
 
--- Antonymes supplémentaires
-INSERT INTO mots_antonymes (mot_id, antonyme_id) VALUES
-((SELECT id FROM mots WHERE mot = 'Intelligent'), (SELECT id FROM mots WHERE mot = 'Stupide')),
-((SELECT id FROM mots WHERE mot = 'Splendide'), (SELECT id FROM mots WHERE mot = 'Affreux')),
-((SELECT id FROM mots WHERE mot = 'Amour'), (SELECT id FROM mots WHERE mot = 'Haine')),
-((SELECT id FROM mots WHERE mot = 'Courage'), (SELECT id FROM mots WHERE mot = 'Lâcheté'))
-ON CONFLICT DO NOTHING;
+INSERT INTO mots_antonymes (mot_id, antonyme_id)
+SELECT m1.id, m2.id FROM mots m1 JOIN mots m2 ON m2.mot = 'Stupide'
+WHERE m1.mot = 'Intelligent'
+AND NOT EXISTS (SELECT 1 FROM mots_antonymes WHERE mot_id = m1.id AND antonyme_id = m2.id);
 
--- ========================================
--- VÉRIFICATION DES DONNÉES INSÉRÉES
--- ========================================
+INSERT INTO mots_antonymes (mot_id, antonyme_id)
+SELECT m1.id, m2.id FROM mots m1 JOIN mots m2 ON m2.mot = 'Affreux'
+WHERE m1.mot = 'Splendide'
+AND NOT EXISTS (SELECT 1 FROM mots_antonymes WHERE mot_id = m1.id AND antonyme_id = m2.id);
 
--- Afficher le nombre total de mots
-DO $$
-DECLARE
-    total_mots INT;
-    total_synonymes INT;
-    total_antonymes INT;
-BEGIN
-    SELECT COUNT(*) INTO total_mots FROM mots;
-    SELECT COUNT(*) INTO total_synonymes FROM mots_synonymes;
-    SELECT COUNT(*) INTO total_antonymes FROM mots_antonymes;
+INSERT INTO mots_antonymes (mot_id, antonyme_id)
+SELECT m1.id, m2.id FROM mots m1 JOIN mots m2 ON m2.mot = 'Haine'
+WHERE m1.mot = 'Amour'
+AND NOT EXISTS (SELECT 1 FROM mots_antonymes WHERE mot_id = m1.id AND antonyme_id = m2.id);
 
-    RAISE NOTICE '====================================';
-    RAISE NOTICE 'RÉSUMÉ DE L''INSERTION';
-    RAISE NOTICE '====================================';
-    RAISE NOTICE 'Total de mots insérés: %', total_mots;
-    RAISE NOTICE 'Total de relations de synonymes: %', total_synonymes;
-    RAISE NOTICE 'Total de relations d''antonymes: %', total_antonymes;
-    RAISE NOTICE '====================================';
-END $$;
+INSERT INTO mots_antonymes (mot_id, antonyme_id)
+SELECT m1.id, m2.id FROM mots m1 JOIN mots m2 ON m2.mot = 'Lâcheté'
+WHERE m1.mot = 'Courage'
+AND NOT EXISTS (SELECT 1 FROM mots_antonymes WHERE mot_id = m1.id AND antonyme_id = m2.id);
