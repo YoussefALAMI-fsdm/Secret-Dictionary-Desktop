@@ -72,7 +72,7 @@ public class MotDAOImpTest {
                         "sa",
                         "")
                 .cleanDisabled(false)
-                .locations("classpath:db/migration")
+                .locations("classpath:db/migration/test")
                 .load();
 
         flyway.clean(); // Nettoie la base avant chaque test
