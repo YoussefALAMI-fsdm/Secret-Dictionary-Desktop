@@ -1,17 +1,19 @@
 package com.secret.dictionary.ui;
 
+import com.secret.dictionary.dao.DAOExeption;
+import com.secret.dictionary.dao.MotDAOImp;
 import com.secret.dictionary.dto.MotDTO;
-import com.secret.dictionary.service.MotService;
+import com.secret.dictionary.service.MotServiceImp;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-
 /**
- * Implémentation Fake de MotService pour les tests fonctionnels TestFX
+ * Implémentation Fake de MotServiceImp pour les tests fonctionnels TestFX
  * Simule le comportement du service réel avec des données en mémoire
  */
-public class MotServiceFake implements MotService {
+public class MotServiceFake extends MotServiceImp { // extends MotServiceImp au lieu de implements MotService
+                                                   // Car on est besion d'injecter MotServiceImp ( on peut injecter leur fils Fake )
 
     // Stockage en mémoire des mots
     private final Map<String, MotDTO> mots = new HashMap<>();
@@ -26,6 +28,7 @@ public class MotServiceFake implements MotService {
     private boolean simulateDbError = false;
 
     public MotServiceFake() {
+        super(null); // Passer null au DAO car on ne l'utilisera pas
         // Initialisation avec quelques données par défaut pour les tests
         initDefaultData();
     }
