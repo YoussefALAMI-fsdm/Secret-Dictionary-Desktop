@@ -8,13 +8,11 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.input.KeyCode;
-import javafx.scene.input.MouseButton;
 import javafx.stage.Stage;
 import org.junit.jupiter.api.*;
 import org.testfx.api.FxToolkit;
 import org.testfx.framework.junit5.ApplicationTest;
 import org.testfx.matcher.control.LabeledMatchers;
-import org.testfx.matcher.control.ListViewMatchers;
 
 import java.util.concurrent.TimeoutException;
 
@@ -120,7 +118,6 @@ public class MainViewTest extends ApplicationTest {
     public void testMainViewLoads() {
         logger.log("🧪 TEST : Chargement de l'interface principale");
 
-        // Vérifier la présence des boutons principaux
         verifyThat("📊 Statistiques", LabeledMatchers.hasText("📊 Statistiques"));
         verifyThat("🔍 Recherche", LabeledMatchers.hasText("🔍 Recherche"));
 
@@ -133,7 +130,6 @@ public class MainViewTest extends ApplicationTest {
     public void testWordListDisplays() {
         logger.log("🧪 TEST : Affichage de la liste des mots");
 
-        // La liste devrait être visible avec les mots par défaut
         ListView<?> wordList = lookup("#wordList").query();
         assertNotNull(wordList, "La liste des mots doit être présente");
         assertFalse(wordList.getItems().isEmpty(), "La liste ne doit pas être vide");
@@ -148,10 +144,8 @@ public class MainViewTest extends ApplicationTest {
     public void testStatisticsButtonClick() {
         logger.log("🧪 TEST : Clic sur le bouton Statistiques");
 
-        // Cliquer sur le bouton Statistiques
         clickOn("📊 Statistiques");
 
-        // Vérifier que la vue statistiques est affichée
         Label titleLabel = lookup("#titleLabel").query();
         assertNotNull(titleLabel, "Le titre des statistiques doit être présent");
         assertEquals("Statistiques du Dictionnaire", titleLabel.getText());
@@ -165,19 +159,14 @@ public class MainViewTest extends ApplicationTest {
     public void testOpenSearchDialog() {
         logger.log("🧪 TEST : Ouverture du dialogue de recherche");
 
-        // Cliquer sur le bouton Recherche
         clickOn("🔍 Recherche");
-
-        // Attendre l'ouverture du dialogue
         sleep(300);
 
-        // Vérifier la présence du dialogue
         Node dialog = lookup(".dialog-pane").query();
         assertNotNull(dialog, "Le dialogue de recherche doit être ouvert");
 
         logger.log("✅ Dialogue de recherche ouvert");
 
-        // Fermer le dialogue (ESC ou bouton Annuler)
         press(KeyCode.ESCAPE).release(KeyCode.ESCAPE);
         sleep(300);
 
@@ -189,15 +178,12 @@ public class MainViewTest extends ApplicationTest {
     public void testWordSelection() {
         logger.log("🧪 TEST : Sélection d'un mot dans la liste");
 
-        // Sélectionner le premier mot dans la liste
         ListView<?> wordList = lookup("#wordList").query();
         assertFalse(wordList.getItems().isEmpty(), "La liste doit contenir des mots");
 
-        // Cliquer sur le premier item
         clickOn(wordList);
         sleep(300);
 
-        // Vérifier que les détails sont affichés
         Label wordTitle = lookup("#wordTitle").query();
         assertNotNull(wordTitle, "Le titre du mot doit être affiché");
         assertNotEquals("Sélectionnez un mot", wordTitle.getText());
@@ -211,15 +197,11 @@ public class MainViewTest extends ApplicationTest {
     public void testNavigateToAllWords() {
         logger.log("🧪 TEST : Navigation vers tous les mots");
 
-        // Cliquer sur le bouton "Recherche avancée" pour ouvrir le menu
         clickOn("📁 Recherche avancée");
         sleep(300);
-
-        // Cliquer sur "Emojis" (qui déclenche onTousLesMotsClick)
         clickOn("• Emojis");
         sleep(300);
 
-        // Vérifier que la vue statistiques est affichée (comportement par défaut)
         Label titleLabel = lookup("#titleLabel").query();
         assertNotNull(titleLabel, "La vue statistiques doit être affichée");
 
@@ -231,7 +213,6 @@ public class MainViewTest extends ApplicationTest {
     public void testStylesApplied() {
         logger.log("🧪 TEST : Vérification des styles CSS");
 
-        // Vérifier que le style principal est chargé
         Button statsButton = lookup("📊 Statistiques").query();
         assertNotNull(statsButton, "Le bouton Statistiques doit exister");
 
@@ -246,22 +227,18 @@ public class MainViewTest extends ApplicationTest {
     public void testMenuToggle() {
         logger.log("🧪 TEST : Toggle du menu déroulant");
 
-        // Ouvrir le menu
         clickOn("📁 Recherche avancée");
         sleep(300);
 
-        // Le menu devrait être visible
         Node menuCatego = lookup("#menuCatego").query();
         assertNotNull(menuCatego, "Le menu doit être présent");
         assertTrue(menuCatego.isVisible(), "Le menu doit être visible");
 
         logger.log("✅ Menu ouvert");
 
-        // Fermer le menu
         clickOn("📁 Recherche avancée");
         sleep(300);
 
-        // Le menu devrait être caché
         assertFalse(menuCatego.isVisible(), "Le menu doit être caché");
 
         logger.log("✅ Menu fermé");
@@ -273,22 +250,24 @@ public class MainViewTest extends ApplicationTest {
     public void testModifierButtonVisibility() {
         logger.log("🧪 TEST : Visibilité du bouton Modifier");
 
-        // Au démarrage, le bouton Modifier ne doit pas être visible
-        Button btnModifier = lookup("#btnModifier").query();
-        assertNotNull(btnModifier, "Le bouton Modifier doit exister");
-        assertFalse(btnModifier.isVisible(), "Le bouton ne doit pas être visible au démarrage");
-
-        logger.log("✅ Bouton Modifier caché par défaut");
-
-        // Sélectionner un mot
+        // ✅ ÉTAPE 1 : Sélectionner un mot pour charger word-details.fxml
+        logger.log("📝 Sélection d'un mot dans la liste...");
         ListView<?> wordList = lookup("#wordList").query();
+        assertNotNull(wordList, "La liste des mots doit être présente");
+        assertFalse(wordList.getItems().isEmpty(), "La liste doit contenir des mots");
+
         clickOn(wordList);
-        sleep(300);
+        sleep(500); // attendre que word-details.fxml soit chargé
 
-        // Le bouton devrait maintenant être visible
-        assertTrue(btnModifier.isVisible(), "Le bouton doit être visible après sélection");
+        // ✅ ÉTAPE 2 : Vérifier le bouton Modifier
+        logger.log("🔍 Recherche du bouton Modifier...");
+        Button btnModifier = lookup("#btnModifier").query();
+        assertNotNull(btnModifier, "Le bouton Modifier doit exister après sélection");
 
-        logger.log("✅ Bouton Modifier affiché après sélection d'un mot");
+        assertTrue(btnModifier.isVisible(), "Le bouton doit être visible après sélection d'un mot");
+        assertTrue(btnModifier.isManaged(), "Le bouton doit être géré (managed)");
+
+        logger.log("✅ Bouton Modifier visible après sélection d'un mot");
     }
 
     @Test
@@ -296,11 +275,9 @@ public class MainViewTest extends ApplicationTest {
     public void testStatisticsTotalCount() {
         logger.log("🧪 TEST : Compteur total dans les statistiques");
 
-        // Aller à la vue statistiques
         clickOn("📊 Statistiques");
         sleep(300);
 
-        // Vérifier le label du total
         Label totalCountLabel = lookup("#totalCountLabel").query();
         assertNotNull(totalCountLabel, "Le label du total doit être présent");
 
@@ -315,9 +292,6 @@ public class MainViewTest extends ApplicationTest {
     // MÉTHODES UTILITAIRES
     // ========================================
 
-    /**
-     * Attendre un délai (en millisecondes)
-     */
     private void sleep(int millis) {
         try {
             Thread.sleep(millis);
@@ -326,9 +300,6 @@ public class MainViewTest extends ApplicationTest {
         }
     }
 
-    /**
-     * Cliquer sur un élément avec vérification
-     */
     private void clickOnSafe(String query) {
         try {
             clickOn(query);
@@ -339,9 +310,6 @@ public class MainViewTest extends ApplicationTest {
         }
     }
 
-    /**
-     * Vérifier qu'un nœud est visible
-     */
     private void assertVisible(String query, String description) {
         Node node = lookup(query).query();
         assertNotNull(node, description + " doit exister");
