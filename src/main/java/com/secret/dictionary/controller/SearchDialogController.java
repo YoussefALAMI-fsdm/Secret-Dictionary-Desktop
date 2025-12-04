@@ -7,6 +7,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
@@ -36,15 +37,15 @@ public class SearchDialogController {
         dialog.initModality(Modality.APPLICATION_MODAL);
 
         ButtonType btnRechercher = new ButtonType("Rechercher", ButtonBar.ButtonData.OK_DONE);
-        ButtonType btnAnnuler = new ButtonType("Annuler", ButtonBar.ButtonData.CANCEL_CLOSE);
+        ButtonType btnAnnuler = new ButtonType("Annuler", ButtonBar.ButtonData.CANCEL_CLOSE);//enum , constante
         dialog.getDialogPane().getButtonTypes().addAll(btnRechercher, btnAnnuler);
 
         // ✨ CONTENEUR PRINCIPAL
-        VBox content = new VBox(15);
-        content.setPadding(new Insets(20));
-        content.setAlignment(Pos.CENTER_LEFT);
+        VBox content = new VBox(20);
+        content.setPadding(new Insets(30));
+        content.setAlignment(Pos.CENTER_LEFT);//class, enumeration
         content.setStyle("-fx-background-color: #1a0b2e; -fx-background-radius: 10;");
-        content.setMinHeight(Region.USE_PREF_SIZE);
+        content.setMinHeight(Region.USE_PREF_SIZE);//calculée automatiquement par JavaFX, class abstraite,constante statique de la classe Region
 
         Label titre = new Label("Entrez le mot à rechercher");
         titre.setStyle("-fx-font-size: 16px; -fx-text-fill: #c77dff; -fx-font-weight: bold;");
@@ -77,11 +78,17 @@ public class SearchDialogController {
                         "-fx-padding: 0; " +
                         "-fx-fixed-cell-size: 35;"
         );
+        //"-fx-fixed-cell-size: " + ITEM_HEIGHT + ";"
 
         // Style des cellules
+        //Cell<T> la class mere de ListCell
+        //setCellFactory sert a personnaliser l’apparence des cellules (Callback<ListView<String>, ListCell<String>>)
         suggestionList.setCellFactory(param -> new ListCell<String>() {
+            //Le lambda retourne une nouvelle cellule ListCell<String> pour chaque élément affiché
             @Override
+            //Cell<T> contient la méthode updateItem , gère l'affichage d'un élément individuel
             protected void updateItem(String item, boolean empty) {
+                //updateItem n'est pas un constructeur ...
                 super.updateItem(item, empty);
                 if (empty || item == null) {
                     setText(null);
@@ -97,7 +104,8 @@ public class SearchDialogController {
                                     "-fx-cursor: hand; " +
                                     "-fx-background-insets: 0;"
                     );
-
+                    //lambda remplace un new EventHandler<MouseEvent>()
+                    //ne return rien elles modifient l’état interne du Node
                     setOnMouseEntered(e -> {
                         if (!isEmpty()) {
                             setStyle(
@@ -132,7 +140,7 @@ public class SearchDialogController {
         autocompleteBox.getChildren().addAll(txtRecherche, suggestionList);
         autocompleteBox.setMaxWidth(400);
         autocompleteBox.setPrefWidth(400);
-        autocompleteBox.setMinHeight(Region.USE_PREF_SIZE);
+        autocompleteBox.setMinHeight(150);
 
         // Labels d'information
         Label info = new Label("💡 La recherche floue trouve les mots similaires");
@@ -157,8 +165,13 @@ public class SearchDialogController {
         // ========================================
         // 🔥 LOGIQUE D'AUTOCOMPLÉTION EN TEMPS RÉEL
         // ========================================
+        //lookupButton retourne un Node générique , retourne le vrai objet Button (permet .setDisable)
+        //la classe Button hérite indirectement de Node (sans casting btnRechercherNode est de type Node)
         Button btnRechercherNode = (Button) dialog.getDialogPane().lookupButton(btnRechercher);
 
+        //textProperty c’est une méthode héritée de la classe TextInputControl retourne un objet StringProperty
+        //"" → "a" → "ab" → "abc"
+        //addListener c’est pour réagir lorsque le texte change
         txtRecherche.textProperty().addListener((observable, oldValue, newValue) -> {
             String query = newValue.trim();
 
@@ -176,6 +189,7 @@ public class SearchDialogController {
                                 "-fx-background-radius: 5 5 0 0;"
                 );
             } else {
+                //récupérer tous les mots commençant par query
                 List<String> suggestions = motService.getListMot(query);
 
                 if (suggestions.isEmpty()) {
@@ -190,11 +204,17 @@ public class SearchDialogController {
                     suggestionList.setItems(items);
 
                     // Calcul hauteur optimale
-                    int itemCount = Math.min(suggestions.size(), 5);
+                    int itemCount = Math.min(suggestions.size(), 3);
                     double itemHeight = 35;
                     double calculatedHeight = itemCount * itemHeight + 2;
                     suggestionList.setPrefHeight(calculatedHeight);
                     suggestionList.setMinHeight(calculatedHeight);
+
+                    // ✅ Hauteur fixe pour 3 éléments + bordures
+                    //double fixedHeight = VISIBLE_ITEMS * ITEM_HEIGHT + 4;
+                    //suggestionList.setPrefHeight(fixedHeight);
+                    //suggestionList.setMaxHeight(fixedHeight);
+                    //suggestionList.setMinHeight(fixedHeight);
 
                     suggestionList.setVisible(true);
                     suggestionList.setManaged(true);
@@ -283,6 +303,7 @@ public class SearchDialogController {
             return null;
         });
 
+        //return null si l’utilisateur annule
         Optional<String> result = dialog.showAndWait();
         result.ifPresent(mot -> {
             if (!mot.isEmpty()) {

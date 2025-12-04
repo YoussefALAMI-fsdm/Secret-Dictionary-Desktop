@@ -4,8 +4,7 @@ import com.secret.dictionary.model.Mot;
 import com.secret.dictionary.util.DataBase;
 
 import java.sql.*;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 // DAO : Couche backend qui interagir avec la DB
 
@@ -18,6 +17,10 @@ public class MotDAOImp implements MotDAO { // Defenir le CRUD complet ( create, 
     public MotDAOImp(DataBase db ) {
 
         this.connexion = db.getConnection() ;
+    }
+
+    public MotDAOImp ( Connection connection ) { // Contructeur pour le test ( prend directement connexion H2 )
+        this.connexion = connection;
     }
 
     @Override
@@ -39,13 +42,15 @@ public class MotDAOImp implements MotDAO { // Defenir le CRUD complet ( create, 
     }
 
     @Override
-    public boolean save(Mot m) throws DAOExeption {
+    public boolean saveMot(Mot m) throws DAOExeption {
 
-        String sql = "INSERT INTO mots(mot,def) VALUES(?,?);" ;
+        String sql = "INSERT INTO mots(mot,def,categorie,emojie) VALUES(?,?,?,?);" ;
 
         try ( PreparedStatement ps = connexion.prepareStatement(sql)) {
             ps.setString(1,m.getMot());
             ps.setString(2,m.getDefinition());
+            ps.setString(3,m.getCategorie());
+            ps.setString(4,m.getEmojie());
 
             int n = ps.executeUpdate() ;
 
@@ -59,7 +64,7 @@ public class MotDAOImp implements MotDAO { // Defenir le CRUD complet ( create, 
     }
 
     @Override
-    public Mot findWByMot(Mot m) throws DAOExeption {
+    public Mot findByMot(Mot m) throws DAOExeption {
 
         String sql = "SELECT * FROM mots WHERE mot = ?;" ;
 
@@ -71,6 +76,8 @@ public class MotDAOImp implements MotDAO { // Defenir le CRUD complet ( create, 
             if ( rs.next() ) {
                 m.setId(rs.getInt("id"));
                 m.setDefinition(rs.getString("def"));
+                m.setCategorie(rs.getString("categorie"));
+                m.setEmojie(rs.getString("emojie"));
                 return m ;
             }
             else
@@ -108,6 +115,181 @@ public class MotDAOImp implements MotDAO { // Defenir le CRUD complet ( create, 
 
         } catch (SQLException e) {
             throw new DAOExeption("Problème dans la recherche floue", e);
+        }
+    }
+
+    public boolean updateMot ( Mot ancien , Mot nouveau ) throws DAOExeption {
+
+        String sql = "UPDATE mots SET mot = ?, def = ?, categorie = ?, emojie = ? WHERE mot = ?;";
+
+        try ( PreparedStatement ps = connexion.prepareStatement(sql)) {
+
+            ps.setString(1,nouveau.getMot());
+            ps.setString(2,nouveau.getDefinition());
+            ps.setString(3,nouveau.getCategorie());
+            ps.setString(4,nouveau.getEmojie());
+            ps.setString(5,ancien.getMot());
+
+            return ps.executeUpdate() > 0 ;
+
+        } catch (SQLException e) {
+            throw new DAOExeption("Problème dans la modification du mot", e);
+        }
+    }
+
+    @Override
+    public int getIDByMot(String mot) throws DAOExeption {
+
+        String sql = "SELECT id FROM mots WHERE mot = ?;";
+
+        try ( PreparedStatement ps = connexion.prepareStatement(sql)) {
+
+            ps.setString(1,mot);
+            ResultSet rs = ps.executeQuery() ;
+
+            if ( rs.next() )
+                return rs.getInt("id");
+
+            return -1 ; // Cas de aucun ligne n'est trouvé
+
+        } catch ( SQLException e ) {
+            throw new DAOExeption("Probleme dans la recherche d'index d'un mot",e) ;
+        }
+
+    }
+
+    @Override
+    public boolean addSynonyme(Mot mot1, Mot mot2) throws DAOExeption {
+
+        String sql = "INSERT INTO mots_synonymes(mot_id,synonyme_id) VALUES(?,?);" ;
+
+        try ( PreparedStatement ps = connexion.prepareStatement(sql) ) {
+
+            ps.setInt(1,mot1.getId());
+            ps.setInt(2,mot2.getId());
+
+           return  ps.executeUpdate() > 0 ;
+
+        } catch ( SQLException e ) {
+            throw new DAOExeption("Probleme dans l'ajout du synonymes",e) ;
+        }
+    }
+
+    @Override
+    public boolean addAntonyme (Mot mot1, Mot mot2) throws DAOExeption {
+
+        String sql = "INSERT INTO mots_antonymes(mot_id,antonyme_id) VALUES(?,?);" ;
+
+        try ( PreparedStatement ps = connexion.prepareStatement(sql) ) {
+
+            ps.setInt(1,mot1.getId());
+            ps.setInt(2,mot2.getId());
+
+            return  ps.executeUpdate() > 0 ;
+
+        } catch ( SQLException e ) {
+            throw new DAOExeption("Probleme dans l'ajout du antonyme",e) ;
+        }
+    }
+
+    @Override
+    public List<String> getSynonymes(Mot mot) throws DAOExeption {
+
+        // Usage du TEXT Bloc
+        String sql = """       
+                   SELECT mot FROM mots
+                   WHERE id IN (
+                    SELECT synonyme_id FROM mots_synonymes
+                    WHERE mot_id = ?
+                    UNION -- Pour ne pas faire retourner deux id identique ( apparaitre a mot_id et synonyme_id ) 
+                    SELECT mot_id FROM mots_synonymes
+                    WHERE synonyme_id = ?
+                    );
+                """;
+
+        try ( PreparedStatement ps = connexion.prepareStatement(sql)) {
+            ps.setInt(1,mot.getId());
+            ps.setInt(2,mot.getId());
+
+            ResultSet rs = ps.executeQuery();
+
+            List<String> synonymes = new LinkedList<>() ;
+
+            while (rs.next())
+                synonymes.add(rs.getString("mot"));
+
+
+            return synonymes.isEmpty() ? null : synonymes ;
+
+        }catch ( SQLException e ) {
+            throw new DAOExeption("Probleme lorqs du recherches des synonymes",e) ;
+        }
+    }
+
+    @Override
+    public List<String> getAntonymes(Mot mot) throws DAOExeption {
+        String sql = """       
+                   SELECT mot FROM mots
+                   WHERE id IN (
+                    SELECT antonyme_id FROM mots_antonymes
+                    WHERE mot_id = ?
+                    UNION -- Pour ne pas faire retourner deux id identique ( apparaitre a mot_id et synonyme_id ) 
+                    SELECT mot_id FROM mots_antonymes
+                    WHERE antonyme_id = ?
+                    );
+                """;
+
+        try ( PreparedStatement ps = connexion.prepareStatement(sql)) {
+            ps.setInt(1,mot.getId());
+            ps.setInt(2,mot.getId());
+
+            ResultSet rs = ps.executeQuery();
+
+            List<String> antonymes = new LinkedList<>() ;
+
+            while (rs.next())
+                antonymes.add(rs.getString("mot"));
+
+            return antonymes.isEmpty() ? null : antonymes ;
+
+        }catch ( SQLException e ) {
+            throw new DAOExeption("Probleme lorqs du recherches des antonymes",e) ;
+        }
+    }
+
+    @Override
+    public Map<String, Integer> getMotCountParCategorie( ) throws DAOExeption {
+
+        String sql = "SELECT categorie, compteur FROM mv_mots_count_par_categorie ORDER BY categorie"; // On utilise la Materialisid View
+
+        try ( PreparedStatement ps = connexion.prepareStatement(sql) ) {
+
+            ResultSet rs = ps.executeQuery();
+
+            Map<String,Integer> map = new LinkedHashMap<>();
+
+            while ( rs.next() )
+                map.put(rs.getString("categorie"),rs.getInt("compteur"));
+
+            if ( map.isEmpty() )
+                return null ;
+
+            return map ;
+
+        } catch ( SQLException e )  {
+            throw new DAOExeption("Erreur lors du getMotCountParCategorie() ",e) ;
+        }
+    }
+
+    @Override
+    public void rafraichirMaterializedView () throws DAOExeption {
+
+        String sql = "REFRESH MATERIALIZED VIEW mv_mots_count_par_categorie";
+
+        try (PreparedStatement ps = connexion.prepareStatement(sql)) {
+            ps.execute();
+        } catch (SQLException e) {
+            throw new DAOExeption("Erreur lors du rafraîchissement de la MV", e);
         }
     }
 }

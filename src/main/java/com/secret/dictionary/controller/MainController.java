@@ -12,24 +12,30 @@ import java.io.IOException;
 
 /**
  * Contrôleur principal - Orchestration des sous-composants
+ * MIS À JOUR : Ajout de la vue des statistiques par défaut
  */
 public class MainController {
-
+    // HBox, ... classes JavaFX
     @FXML private BorderPane rootPane;
     @FXML private HBox topBar;
     @FXML private HBox leftContainer;
     @FXML private HBox centerContainer;
     @FXML private HBox rightContainer;
 
-    // Injection du service
     private MotServiceImp motService;
 
     // Sous-contrôleurs
+    //Les contrôleurs sont des attributs de classe
     private MenuController menuController;
     private WordDetailsController wordDetailsController;
     private WordListController wordListController;
     private SearchDialogController searchDialogController;
     private AddWordDialogController addWordDialogController;
+    private StatisticsViewController statisticsViewController;
+
+    // Vues centrales
+    private ScrollPane detailsView;
+    private ScrollPane statisticsView;
 
     public void setMotService(MotServiceImp motService) {
         this.motService = motService;
@@ -37,7 +43,12 @@ public class MainController {
     }
 
     @FXML
+    //Méthode héritée de l'interface Initializable
+    //Cette méthode doit être appelée après que JavaFX ait injecté tous les éléments du fichier FXML dans le contrôleur
     public void initialize() {
+        //Elle sert à initialiser l'interface graphique
+        //controller dépend de motService
+        //motService n’est pas encore disponible dans initialize()
         // L'initialisation complète se fait après injection du service
     }
 
@@ -46,22 +57,46 @@ public class MainController {
      */
     private void initializeSubControllers() {
         try {
-            // Charger le menu latéral
+            // ========================================
+            // CHARGER LE MENU LATÉRAL
+            // ========================================
             FXMLLoader menuLoader = new FXMLLoader(getClass().getResource("/com/secret/dictionary/fxml/side-menu.fxml"));
+            //crées un chargeur prêt à lire ton fichier FXML
             VBox menuView = menuLoader.load();
+            //récupérer l’instance du contrôleur définie dans le fichier FXML
             menuController = menuLoader.getController();
+            // Le contrôleur du menu a donc besoin du service principal : injection de dépendance
             menuController.setMotService(motService);
+            // donner au contrôleur du menu une référence vers le contrôleur principal
             menuController.setMainController(this);
+            // RE IMPORTANT : Initialise les dialogues synonyme/antonyme
             leftContainer.getChildren().add(menuView);
 
-            // Charger la zone de détails
+            // ========================================
+            // CHARGER LA ZONE DE DÉTAILS
+            // ========================================
             FXMLLoader detailsLoader = new FXMLLoader(getClass().getResource("/com/secret/dictionary/fxml/word-details.fxml"));
-            ScrollPane detailsView = detailsLoader.load();
+            detailsView = detailsLoader.load();
             wordDetailsController = detailsLoader.getController();
             wordDetailsController.setMotService(motService);
-            centerContainer.getChildren().add(detailsView);
+            wordDetailsController.setMainController(this);
 
-            // Charger la liste des mots
+            // ========================================
+            // CHARGER LA VUE DES STATISTIQUES
+            // ========================================
+            FXMLLoader statsLoader = new FXMLLoader(getClass().getResource("/com/secret/dictionary/fxml/statistics-view.fxml"));
+            //renvoie la racine du layout FXML dans statisticsView
+            statisticsView = statsLoader.load();
+            statisticsViewController = statsLoader.getController();
+            statisticsViewController.setMotService(motService);
+            //on a pas besoin de .setMainController (rien n'est demander ou chager , ...)
+
+            // ✅ AFFICHER LES STATISTIQUES PAR DÉFAUT
+            centerContainer.getChildren().add(statisticsView);
+
+            // ========================================
+            // CHARGER LA LISTE DES MOTS
+            // ========================================
             FXMLLoader listLoader = new FXMLLoader(getClass().getResource("/com/secret/dictionary/fxml/word-list.fxml"));
             VBox listView = listLoader.load();
             wordListController = listLoader.getController();
@@ -69,15 +104,22 @@ public class MainController {
             wordListController.setMainController(this);
             rightContainer.getChildren().add(listView);
 
-            // Initialiser les contrôleurs de dialogues
+            // ========================================
+            // INITIALISER LES CONTRÔLEURS DE DIALOGUES
+            // ========================================
             searchDialogController = new SearchDialogController(motService, this);
             addWordDialogController = new AddWordDialogController(motService, this);
+            // Les dialogues synonyme/antonyme sont initialisés dans MenuController
+            // via setMainController() appelé ci-dessus
 
-            // Charger tous les mots au démarrage
+            // ========================================
+            // CHARGER TOUS LES MOTS AU DÉMARRAGE
+            // ========================================
             wordListController.chargerTousLesMots();
 
         } catch (IOException e) {
             System.err.println("Erreur lors du chargement des composants FXML: " + e.getMessage());
+            //affiche l’exception complète (type + message) et la pile d’appels sur la sortie d’erreur standard
             e.printStackTrace();
         }
     }
@@ -95,6 +137,11 @@ public class MainController {
         addWordDialogController.show();
     }
 
+    @FXML
+    private void onStatistiquesClick() {
+        showStatisticsView();
+    }
+
     // ========================================
     // MÉTHODES PUBLIQUES POUR NAVIGATION
     // ========================================
@@ -105,28 +152,58 @@ public class MainController {
 
     public void afficherTousLesMots() {
         wordListController.chargerTousLesMots();
-        hideDetailsView();
+        showStatisticsView(); // Retour aux statistiques
     }
 
     public void rafraichirListeMots() {
         wordListController.chargerTousLesMots();
+        // Rafraîchir aussi les statistiques
+        if (statisticsViewController != null) {
+            statisticsViewController.rafraichirStatistiques();
+        }
     }
 
     // ========================================
     // GESTION VISIBILITÉ DES VUES
     // ========================================
+
     /**
-     * Affiche la vue détails dans le centre sans cacher les conteneurs gauche/droite
+     * Affiche la vue détails dans le centre
      */
     private void showDetailsView() {
+        centerContainer.getChildren().clear();
+        centerContainer.getChildren().add(detailsView);
         centerContainer.setVisible(true);
         centerContainer.setManaged(true);
     }
 
     /**
-     * Cache la vue détails
+     * Affiche la vue statistiques dans le centre
+     */
+    private void showStatisticsView() {
+        // Masquer d'abord les détails
+        if (wordDetailsController != null) {
+            wordDetailsController.masquerDetails();
+        }
+
+        centerContainer.getChildren().clear();
+        centerContainer.getChildren().add(statisticsView);
+        centerContainer.setVisible(true);
+        centerContainer.setManaged(true);
+
+        // Rafraîchir les statistiques
+        if (statisticsViewController != null) {
+            statisticsViewController.rafraichirStatistiques();
+        }
+    }
+
+    /**
+     * Cache la vue centrale
      */
     private void hideDetailsView() {
+        if (wordDetailsController != null) {
+            wordDetailsController.masquerDetails();
+        }
         centerContainer.setVisible(false);
         centerContainer.setManaged(false);
     }

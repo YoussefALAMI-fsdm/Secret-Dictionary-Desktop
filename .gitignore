@@ -37,7 +37,7 @@ postgres_data/
 /nbbuild/
 /dist/
 /nbdist/
-/.nb-gradle/
+.nb-gradle/
 build/
 !**/src/main/**/build/
 !**/src/test/**/build/
@@ -48,6 +48,33 @@ build/
 .vscode/
 
 # ===============================
-# Mac OS
+# Logs
+# ===============================
+logs/
+*.log
+
+# ===============================
+# OS spécifiques
 # ===============================
 .DS_Store
+Thumbs.db
+ehthumbs.db
+desktop.ini
+
+# ===============================
+# Java
+# ===============================
+*.class
+*.jar
+*.war
+*.ear
+*.log
+hs_err_pid*
+
+# ===============================
+# IDE / outils divers
+# ===============================
+*.iml
+*.ipr
+*.iws
+out/

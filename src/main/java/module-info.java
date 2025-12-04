@@ -3,7 +3,8 @@ module com.secret.dictionary.secretdictionarydesktop {
     requires javafx.fxml;
     requires java.sql; // Car la class DataBase est dans le meme projet
     requires flyway.core;
-    requires org.postgresql.jdbc; // Permet de gerer les migrations de la base de données (versionner et appliquer automatiquement les scripts SQL)
+    requires org.postgresql.jdbc;
+    requires javafx.graphics; // Permet de gerer les migrations de la base de données (versionner et appliquer automatiquement les scripts SQL)
 
     // Ouvre les packages contenant les controllers pour FXMLLoader
     opens com.secret.dictionary.controller to javafx.fxml;

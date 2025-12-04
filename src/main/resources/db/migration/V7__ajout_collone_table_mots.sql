@@ -1,0 +1,3 @@
+ALTER TABLE mots
+ADD COLUMN categorie TEXT DEFAULT 'General',
+ADD COLUMN emojie TEXT ;

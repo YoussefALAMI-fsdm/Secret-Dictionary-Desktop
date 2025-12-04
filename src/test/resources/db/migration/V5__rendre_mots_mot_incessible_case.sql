@@ -1,0 +1,3 @@
+-- Ignorer citext pour H2
+-- ALTER TABLE mots ALTER COLUMN mot TYPE citext;
+-- On laisse mot en TEXT pour les tests H2
