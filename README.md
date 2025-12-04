@@ -59,11 +59,14 @@ Une application JavaFX moderne et élégante pour la gestion de mots et définit
 
 ### 🧪 Tests automatisés
 
-- ✅ **Tests unitaires** : couverture complète de la couche DAO avec JUnit 5
+- ✅ **Tests unitaires complets** :
+    - Couche DAO avec JUnit 5 et H2 en mémoire
+    - Couche Service avec Mockito pour isolation
 - 🗄️ **Base H2 en mémoire** : tests rapides sans impacter PostgreSQL
 - 📊 **Tests de relations** : vérification des synonymes et antonymes
 - 📝 **Logs détaillés** : fichiers de logs pour chaque session de tests
 - 🔄 **Migrations de test** : scripts SQL adaptés pour H2
+- 🎯 **Couverture complète** : DAO, Service, et logique métier
 
 <br>
 
@@ -81,7 +84,7 @@ Une application JavaFX moderne et élégante pour la gestion de mots et définit
 | **Migrations** | Flyway 10.0 pour gestion automatique du schéma            |
 | **Build** | Maven avec module-info.java (Java Platform Module System) |
 | **Conteneurisation** | Docker & Docker Compose                                   |
-| **Tests** | JUnit 5, H2 Database, Mockito                            |
+| **Tests** | JUnit 5, Mockito, H2 Database                            |
 
 <br>
 
@@ -134,6 +137,7 @@ Le script automatisé va :
 - 🔧 Démarrer PostgreSQL automatiquement
 - 📊 Charger les données de test (30+ mots)
 - 🚀 Lancer l'application JavaFX
+- 🔒 **Proposer d'arrêter PostgreSQL** à la fermeture
 
 ### 3️⃣ Utiliser l'application
 
@@ -157,7 +161,7 @@ Une fois lancée, vous pouvez :
 
 ### Tests automatisés
 
-Le projet inclut une suite complète de tests unitaires pour la couche DAO.
+Le projet inclut une suite complète de tests unitaires pour les couches DAO et Service.
 
 #### Exécuter les tests via Maven
 
@@ -183,17 +187,25 @@ Les scripts `start.sh` et `start.bat` proposent maintenant d'exécuter les tests
 
 Les résultats détaillés des tests sont enregistrés dans :
 ```
-logs/LogMotDAOTest.log
+logs/LogMotDAOTest.log      # Tests de la couche DAO
+logs/LogMotServiceTest.log  # Tests de la couche Service
 ```
 
 ### Couverture des tests
 
-Les tests couvrent :
+#### Tests DAO (MotDAOImpTest)
 - ✅ Ajout, recherche, modification de mots
 - ✅ Gestion des synonymes et antonymes
 - ✅ Statistiques par catégorie
 - ✅ Recherche floue et autocomplétion
 - ✅ Cas limites et erreurs
+
+#### Tests Service (MotServiceImpTest)
+- ✅ Conversion DTO ↔ Entity
+- ✅ Logique métier avec mock DAO
+- ✅ Gestion des erreurs et cas limites
+- ✅ Validation des retours de méthodes
+- ✅ Vérification des appels DAO avec Mockito
 
 <br>
 
@@ -230,6 +242,7 @@ Les tests couvrent :
 - Chaque couche reçoit ses dépendances via constructeur
 - Évite les couplages forts (`new DataBase()` directement dans DAO)
 - Facilite les tests unitaires et la maintenance
+- Permet l'utilisation de mocks pour les tests
 
 ### 📁 Structure du projet
 ```
@@ -267,49 +280,25 @@ Secret-Dictionary-Desktop/
 │   │   │       └── EmojiUtils.java                    # Gestion emojis colorés
 │   │   └── resources/
 │   │       ├── com/secret/dictionary/
-│   │       │   ├── fxml/
-│   │       │   │   ├── main-view.fxml                 # Vue principale
-│   │       │   │   ├── side-menu.fxml                 # Menu latéral
-│   │       │   │   ├── word-list.fxml                 # Liste mots
-│   │       │   │   ├── word-details.fxml              # Détails mot
-│   │       │   │   └── statistics-view.fxml           # Vue statistiques
-│   │       │   └── styles/
-│   │       │       ├── style.css                      # Import principal
-│   │       │       ├── base.css                       # Variables & base
-│   │       │       ├── buttons.css                    # Styles boutons
-│   │       │       ├── panels.css                     # Styles panneaux
-│   │       │       ├── lists.css                      # Styles listes
-│   │       │       ├── dialogs.css                    # Styles dialogues
-│   │       │       ├── statistics.css                 # Styles statistiques
-│   │       │       ├── synonymes-antonymes.css        # Styles relations
-│   │       │       └── fond-ecran.jpg                 # Image de fond
-│   │       └── db/migration/
-│   │           ├── V1__creation_table_mots.sql
-│   │           ├── V2__creation_index_mots_id.sql
-│   │           ├── V3__creation_index_mots_mot.sql
-│   │           ├── V4__creation_index_unique_mots_mot.sql
-│   │           ├── V5__rendre_mots_mot_incessible_case.sql
-│   │           ├── V6__activer_extension_pg_trgm_autocompilition.sql
-│   │           ├── V7__ajout_collone_table_mots.sql
-│   │           ├── V8__creation_table_mots_synonymes.sql
-│   │           ├── V9__creation_table_mots_antonymes.sql
-│   │           ├── V10__creation_index_unique_mot_couvrant_id.sql
-│   │           ├── V11__insertion_donnees_test.sql
-│   │           └── V12__materialized_view_mot_count.sql
+│   │       │   ├── fxml/                              # Fichiers d'interface
+│   │       │   └── styles/                            # CSS modulaires
+│   │       └── db/migration/                          # Scripts SQL Flyway
 │   └── test/
 │       ├── java/com/secret/dictionary/
 │       │   ├── dao/
 │       │   │   └── MotDAOImpTest.java                 # Tests unitaires DAO
+│       │   ├── service/
+│       │   │   └── MotServiceImpTest.java             # Tests unitaires Service
 │       │   └── utils/
 │       │       └── SimpleLogger.java                  # Logger pour tests
-│       └── resources/db/migration/
-│           └── [Scripts SQL adaptés pour H2]
+│       └── resources/db/migration/test/               # Scripts SQL pour H2
 ├── logs/
-│   └── LogMotDAOTest.log                              # Logs des tests
-├── docker-compose.yml              # Configuration PostgreSQL
-├── start.sh                        # Script démarrage Linux/macOS
-├── start.bat                       # Script démarrage Windows
-├── pom.xml                         # Configuration Maven
+│   ├── LogMotDAOTest.log                              # Logs tests DAO
+│   └── LogMotServiceTest.log                          # Logs tests Service
+├── docker-compose.yml                                 # Configuration PostgreSQL
+├── start.sh                                           # Script démarrage Linux/macOS
+├── start.bat                                          # Script démarrage Windows
+├── pom.xml                                            # Configuration Maven
 └── README.md
 ```
 
@@ -442,6 +431,18 @@ mvn clean test
 
 # Vérifier les logs
 cat logs/LogMotDAOTest.log
+cat logs/LogMotServiceTest.log
+```
+
+### ❌ PostgreSQL ne s'arrête pas après fermeture
+
+**Cause** : Le script n'attend pas la confirmation de l'utilisateur.
+
+**Solution** : Les nouveaux scripts proposent maintenant d'arrêter PostgreSQL. Si vous avez répondu "non", arrêtez manuellement :
+```bash
+docker-compose down
+# ou
+docker compose down
 ```
 
 <br>
@@ -469,7 +470,7 @@ cat logs/LogMotDAOTest.log
 - **Flyway** pour la gestion élégante des migrations de base de données
 - **JavaFX** pour le framework d'interface graphique moderne
 - **Docker** pour la conteneurisation simplifiée
-- **JUnit 5** pour le framework de tests robuste
+- **JUnit 5 & Mockito** pour le framework de tests robuste
 - **H2 Database** pour les tests rapides en mémoire
 
 <br>
