@@ -1,6 +1,7 @@
 package com.secret.dictionary.service;
 
 import com.secret.dictionary.dao.DAOExeption;
+import com.secret.dictionary.dao.MotDAO;
 import com.secret.dictionary.dao.MotDAOImp;
 import com.secret.dictionary.dto.MotDTO;
 import com.secret.dictionary.model.Mot;
@@ -9,9 +10,9 @@ import java.util.*;
 
 public class MotServiceImp implements MotService { // Le controlleur logique ( fait aussi DAO <=> DTO )
 
-    private final MotDAOImp dao ;
+    private final MotDAO dao ; // Rendre le Service accepte tt class qui implement la class MotDAO ( pour que couvre aussi les class de test )
 
-    public MotServiceImp(MotDAOImp dao ) {
+    public MotServiceImp(MotDAO dao ) {
         this.dao = dao ;
     }
 
