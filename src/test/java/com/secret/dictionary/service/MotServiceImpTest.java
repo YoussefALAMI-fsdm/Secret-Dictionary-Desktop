@@ -1,7 +1,7 @@
 package com.secret.dictionary.service;
 
 import com.secret.dictionary.dao.DAOExeption;
-import com.secret.dictionary.dao.MotDAOImp;
+import com.secret.dictionary.dao.MotDAO;
 import com.secret.dictionary.dto.MotDTO;
 import com.secret.dictionary.model.Mot;
 import com.secret.dictionary.utils.SimpleLogger;
@@ -25,7 +25,7 @@ public class MotServiceImpTest {
     private static SimpleLogger logger;
 
     @Mock
-    private MotDAOImp daoMock;
+    private MotDAO daoMock; // <- on mock l'interface
 
     private MotServiceImp service;
     private AutoCloseable closeable;
