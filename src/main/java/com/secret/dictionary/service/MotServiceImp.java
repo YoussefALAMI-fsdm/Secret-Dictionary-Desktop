@@ -37,7 +37,14 @@ public class MotServiceImp implements MotService { // Le controlleur logique ( f
 
         try {
             List<String> mots = dao.findAllMot();
-            return mots != null ? mots : Collections.emptyList();
+            // return mots != null ? mots : Collections.emptyList();
+
+            return Optional.ofNullable(mots)  // On creer un Optional<List<String>> qui est vide si mots == null
+                    .orElse(Collections.emptyList())// si Optional est vide ( on a retourner Optional<List<String>> ) ,alors on la convertie en List ( vide )
+                    .stream() // Convertie la list dans le Optional a un stream
+                    .map(s -> s.isEmpty() ? s : s.substring(0, 1).toUpperCase() + s.substring(1))
+                    .toList();
+
         } catch (DAOExeption e) {
             System.err.println("Probleme DAO : "+e.getMessage());
             e.getStackTrace() ;
@@ -49,10 +56,10 @@ public class MotServiceImp implements MotService { // Le controlleur logique ( f
     public int addMot(MotDTO dto) {
         Mot m = dtoToEntity(dto);
 
-        int estAddSuccess = -1 ;
+        var estAddSuccess = -1 ; // int
 
         try {
-            boolean resultat = dao.saveMot(m);
+            var resultat = dao.saveMot(m); // boolean
 
             if (resultat)  // car .save(m) return true si bien
                 estAddSuccess = 1;
@@ -101,8 +108,16 @@ public class MotServiceImp implements MotService { // Le controlleur logique ( f
     public List<String> getListMot(String mot) {
 
         try {
-            List<String> mots = dao.getListMot(mot) ;
-            return mots ;
+            List<Mot> mots = dao.getListMot(mot) ;
+
+            List<String> listMots = new LinkedList<>();
+
+            Iterator<Mot> it = mots.iterator() ;
+
+            while ( it.hasNext() )
+                listMots.add(it.next().getMot());
+
+            return listMots ;
         } catch (DAOExeption e) {
             System.err.println("Probleme DAO : " + e.getMessage());
             e.printStackTrace();
@@ -275,12 +290,9 @@ public class MotServiceImp implements MotService { // Le controlleur logique ( f
         try {
             Map<String,Integer> map = dao.getMotCountParCategorie();
 
-            if ( map != null )
-                return map ;
+            return map == null ? Collections.EMPTY_MAP : map ;
 
-            return Collections.EMPTY_MAP;
-
-        }catch ( DAOExeption e ) {
+        } catch ( DAOExeption e ) {
             System.err.println("Probleme DAO : " + e.getMessage());
             e.printStackTrace();
             return Collections.EMPTY_MAP ;

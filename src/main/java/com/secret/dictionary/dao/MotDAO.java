@@ -5,12 +5,12 @@ import com.secret.dictionary.model.Mot;
 import java.util.List;
 import java.util.Map;
 
-public interface MotDAO {
+public sealed interface MotDAO permits MotDAOImp { // la classe peut être étendue librement par d’autres classes pour un future usage
 
     List<String> findAllMot () throws DAOExeption ;
     boolean saveMot(Mot m ) throws DAOExeption ;
     Mot findByMot(Mot m ) throws DAOExeption ;
-    List<String> getListMot ( String mot ) throws DAOExeption ;
+    List<Mot> getListMot ( String mot ) throws DAOExeption ;
     boolean updateMot ( Mot ancien , Mot nouveau ) throws DAOExeption ;
 
 
