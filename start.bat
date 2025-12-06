@@ -4,7 +4,7 @@ setlocal EnableDelayedExpansion
 
 REM ====================================================
 REM Script de démarrage pour Secret Dictionary (Windows)
-REM Version 3.1 - Couleurs corrigées
+REM Version 3.2 - Corrigée et optimisée
 REM ====================================================
 
 REM Configuration
@@ -13,7 +13,6 @@ set "POSTGRES_WAIT_TIME=10"
 set "DOCKER_CONTAINER_NAME=secret-dictionary-db"
 
 REM Couleurs ANSI (Windows 10+)
-REM Le caractère ESC doit être défini avec la séquence hexadécimale 0x1B
 for /F %%a in ('echo prompt $E ^| cmd') do set "ESC=%%a"
 set "RESET=%ESC%[0m"
 set "RED=%ESC%[91m"
@@ -126,9 +125,7 @@ if /i "!RUN_TESTS!"=="o" (
     if %ERRORLEVEL% EQU 0 (
         echo.
         echo %GREEN%[OK] Tous les tests ont reussi !%RESET%
-        echo %BLUE%[INFO] Logs detailles disponibles :%RESET%
-        echo   ^> logs\LogMotDAOTest.log
-        echo   ^> logs\LogMotServiceTest.log
+        echo %BLUE%[INFO] Logs detailles disponibles dans le repertoire : logs\%RESET%
     ) else (
         echo.
         echo %YELLOW%[AVERTISSEMENT] Certains tests ont echoue%RESET%
@@ -205,9 +202,11 @@ echo.
 REM Détecter Maven ou Maven Wrapper
 where mvn >nul 2>nul
 if %ERRORLEVEL% EQU 0 (
-    mvn javafx:run
+    call mvn javafx:run
+    set APP_RESULT=!ERRORLEVEL!
 ) else (
     call mvnw.cmd javafx:run
+    set APP_RESULT=!ERRORLEVEL!
 )
 
 REM ============================================
@@ -245,7 +244,7 @@ if /i "!STOP_POSTGRES!"=="o" (
 
 echo.
 echo %CYAN%========================================%RESET%
-echo %CYAN%  Merci d'avoir utilise Secret Dictionary !%RESET%
+echo %CYAN%  Merci d'avoir utilise Secret Dictionary%RESET%
 echo %CYAN%========================================%RESET%
 echo.
 pause

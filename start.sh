@@ -2,7 +2,7 @@
 
 # ====================================================
 # Script de démarrage pour Secret Dictionary
-# Version 3.0 - Optimisé et robuste
+# Version 3.1 - Optimisé et robuste
 # ====================================================
 
 set -e  # Arrêt sur erreur
@@ -146,13 +146,11 @@ run_tests() {
         if $MVN_CMD test -q; then
             echo ""
             print_success "Tous les tests ont réussi !"
-            print_info "Logs détaillés disponibles :"
-            echo "   → logs/LogMotDAOTest.log"
-            echo "   → logs/LogMotServiceTest.log"
+            print_info "Logs détaillés disponibles dans le répertoire : logs/"
         else
             echo ""
             print_warning "Certains tests ont échoué"
-            print_info "Consultez les fichiers de logs pour plus de détails"
+            print_info "Consultez les logs dans le répertoire : logs/"
             echo ""
 
             read -p "Continuer malgré les erreurs ? (o/n) : " CONTINUE
