@@ -2,6 +2,7 @@
 
 # ====================================================
 # Script de démarrage pour Secret Dictionary
+# Version 2.0 - Avec gestion améliorée des tests
 # ====================================================
 
 # Couleurs
@@ -70,7 +71,6 @@ if ! docker ps &> /dev/null; then
     echo "Puis relancez ce script."
     echo ""
 
-    # Proposer d'exécuter avec sudo comme solution temporaire
     read -p "Voulez-vous lancer avec sudo temporairement ? (o/n) : " USE_SUDO
 
     if [ "$USE_SUDO" = "o" ] || [ "$USE_SUDO" = "O" ]; then
@@ -114,10 +114,12 @@ if [ "$RUN_TESTS" = "o" ] || [ "$RUN_TESTS" = "O" ]; then
     echo ""
     if [ $TEST_RESULT -eq 0 ]; then
         echo -e "${GREEN}✅ Tous les tests ont réussi !${NC}"
-        echo -e "${GREEN}📝 Logs détaillés : logs/LogMotDAOTest.log${NC}"
+        echo -e "${GREEN}📝 Logs détaillés :${NC}"
+        echo "   → logs/LogMotDAOTest.log"
+        echo "   → logs/LogMotServiceTest.log"
     else
         echo -e "${RED}❌ Certains tests ont échoué${NC}"
-        echo -e "${YELLOW}📝 Consultez logs/LogMotDAOTest.log pour plus de détails${NC}"
+        echo -e "${YELLOW}📝 Consultez les fichiers de logs pour plus de détails${NC}"
         echo ""
         read -p "Continuer malgré les erreurs ? (o/n) : " CONTINUE
         if [ "$CONTINUE" != "o" ] && [ "$CONTINUE" != "O" ]; then
@@ -133,7 +135,6 @@ fi
 # ============================================
 echo -e "${CYAN}🔧 Démarrage de PostgreSQL...${NC}"
 
-# Vérifier si docker-compose ou docker compose existe
 if command -v docker-compose &> /dev/null; then
     if [ -n "$USE_SUDO" ] && [ "$USE_SUDO" = "o" ]; then
         sudo docker-compose up -d > /dev/null 2>&1
@@ -169,7 +170,7 @@ else
 fi
 
 # ============================================
-# 7. Nettoyage
+# 7. Nettoyage (exécuté après fermeture UI)
 # ============================================
 echo ""
 echo -e "${CYAN}========================================${NC}"
@@ -179,6 +180,8 @@ echo ""
 read -p "Arrêter PostgreSQL ? (o/n) : " STOP
 
 if [ "$STOP" = "o" ] || [ "$STOP" = "O" ]; then
+    echo -e "${YELLOW}🔧 Arrêt de PostgreSQL...${NC}"
+
     if command -v docker-compose &> /dev/null; then
         if [ -n "$USE_SUDO" ] && [ "$USE_SUDO" = "o" ]; then
             sudo docker-compose down > /dev/null 2>&1
@@ -188,9 +191,19 @@ if [ "$STOP" = "o" ] || [ "$STOP" = "O" ]; then
     else
         $COMPOSE_CMD down > /dev/null 2>&1
     fi
-    echo -e "${GREEN}✅ PostgreSQL arrêté${NC}"
+
+    if [ $? -eq 0 ]; then
+        echo -e "${GREEN}✅ PostgreSQL arrêté avec succès${NC}"
+    else
+        echo -e "${RED}❌ Problème lors de l'arrêt de PostgreSQL${NC}"
+    fi
+else
+    echo -e "${YELLOW}ℹ️  PostgreSQL reste actif en arrière-plan${NC}"
+    echo -e "${YELLOW}   Pour l'arrêter plus tard : docker-compose down${NC}"
 fi
 
 echo ""
-echo -e "${GREEN}Merci d'avoir utilisé Secret Dictionary !${NC}"
+echo -e "${GREEN}========================================${NC}"
+echo -e "${GREEN}  Merci d'avoir utilisé Secret Dictionary !${NC}"
+echo -e "${GREEN}========================================${NC}"
 echo ""
