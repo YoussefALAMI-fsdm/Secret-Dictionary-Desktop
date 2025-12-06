@@ -1,22 +1,30 @@
 @echo off
-chcp 65001 >nul
+chcp 65001 >nul 2>&1
 setlocal EnableDelayedExpansion
 
 REM ====================================================
 REM Script de démarrage pour Secret Dictionary (Windows)
-REM Version améliorée avec couleurs et gestion complète
+REM Version 3.1 - Couleurs corrigées
 REM ====================================================
 
-REM Définir les couleurs (codes ANSI)
-set "ESC="
+REM Configuration
+set "MIN_JAVA_VERSION=17"
+set "POSTGRES_WAIT_TIME=10"
+set "DOCKER_CONTAINER_NAME=secret-dictionary-db"
+
+REM Couleurs ANSI (Windows 10+)
+REM Le caractère ESC doit être défini avec la séquence hexadécimale 0x1B
+for /F %%a in ('echo prompt $E ^| cmd') do set "ESC=%%a"
 set "RESET=%ESC%[0m"
 set "RED=%ESC%[91m"
 set "GREEN=%ESC%[92m"
 set "YELLOW=%ESC%[93m"
 set "BLUE=%ESC%[94m"
 set "CYAN=%ESC%[96m"
-set "WHITE=%ESC%[97m"
 
+REM ============================================
+REM En-tête
+REM ============================================
 echo.
 echo %CYAN%========================================%RESET%
 echo %CYAN%  Secret Dictionary - Demarrage%RESET%
@@ -26,27 +34,33 @@ echo.
 REM ============================================
 REM 1. Vérifier Java
 REM ============================================
+echo %BLUE%[INFO] Verification de Java...%RESET%
+
 where java >nul 2>nul
 if %ERRORLEVEL% NEQ 0 (
     echo %RED%[ERREUR] Java n'est pas installe%RESET%
-    echo          Installez Java 17+ depuis : https://adoptium.net/
+    echo.
+    echo Installez Java %MIN_JAVA_VERSION%+ depuis :
+    echo   ^> https://adoptium.net/
+    echo.
     pause
     exit /b 1
 )
 
-REM Extraire la version Java
+REM Extraire la version Java majeure
 for /f "tokens=3" %%g in ('java -version 2^>^&1 ^| findstr /i "version"') do (
     set JAVA_VER=%%g
 )
 set JAVA_VER=!JAVA_VER:"=!
 for /f "delims=. tokens=1" %%v in ("!JAVA_VER!") do set JAVA_MAJOR=%%v
 
-if !JAVA_MAJOR! LSS 17 (
-    echo %RED%[ERREUR] Java !JAVA_MAJOR! detecte, mais Java 17+ est requis%RESET%
+if !JAVA_MAJOR! LSS %MIN_JAVA_VERSION% (
+    echo %RED%[ERREUR] Java !JAVA_MAJOR! detecte, mais Java %MIN_JAVA_VERSION%+ est requis%RESET%
     echo.
     echo Solutions :
-    echo   ^> Installer Java 17 depuis : https://adoptium.net/
-    echo   ^> Ou modifier pom.xml pour utiliser Java !JAVA_MAJOR!
+    echo   ^> Installer Java %MIN_JAVA_VERSION% : https://adoptium.net/
+    echo   ^> Ou modifier pom.xml pour Java !JAVA_MAJOR!
+    echo.
     pause
     exit /b 1
 )
@@ -57,107 +71,138 @@ echo.
 REM ============================================
 REM 2. Vérifier Docker
 REM ============================================
+echo %BLUE%[INFO] Verification de Docker...%RESET%
+
 where docker >nul 2>nul
 if %ERRORLEVEL% NEQ 0 (
     echo %RED%[ERREUR] Docker n'est pas installe%RESET%
-    echo          Installez Docker Desktop : https://www.docker.com/products/docker-desktop
+    echo.
+    echo Installez Docker Desktop depuis :
+    echo   ^> https://www.docker.com/products/docker-desktop
+    echo.
     pause
     exit /b 1
 )
 
-echo %GREEN%[OK] Docker detecte%RESET%
+REM Vérifier que Docker Desktop est lancé
+docker ps >nul 2>nul
+if %ERRORLEVEL% NEQ 0 (
+    echo %YELLOW%[AVERTISSEMENT] Docker Desktop n'est pas lance%RESET%
+    echo.
+    echo Lancez Docker Desktop puis reessayez.
+    pause
+    exit /b 1
+)
+
+echo %GREEN%[OK] Docker operationnel%RESET%
 echo.
 
 REM ============================================
-REM 3. Proposer d'exécuter les tests
+REM 3. Exécution des tests
 REM ============================================
-echo %BLUE%[INFO] Tests automatises%RESET%
-set /p RUN_TESTS="Voulez-vous executer les tests unitaires ? (o/n) : "
+echo %CYAN%========================================%RESET%
+echo %CYAN%  Tests Automatises%RESET%
+echo %CYAN%========================================%RESET%
 echo.
 
-if /i "%RUN_TESTS%"=="o" (
-    echo %CYAN%[INFO] Execution des tests DAO et Service...%RESET%
+set /p RUN_TESTS="Executer les tests unitaires ? (o/n) : "
+
+if /i "!RUN_TESTS!"=="o" (
+    echo.
+    echo %BLUE%[INFO] Execution des tests...%RESET%
     echo.
 
-    REM Exécuter les tests avec Maven
+    REM Détecter Maven ou Maven Wrapper
     where mvn >nul 2>nul
     if %ERRORLEVEL% EQU 0 (
-        mvn test -q
+        set MVN_CMD=mvn
     ) else (
-        call mvnw.cmd test -q
+        set MVN_CMD=mvnw.cmd
     )
+
+    REM Exécuter les tests
+    call !MVN_CMD! test -q
 
     if %ERRORLEVEL% EQU 0 (
         echo.
         echo %GREEN%[OK] Tous les tests ont reussi !%RESET%
-        echo %CYAN%[INFO] Logs detailles :%RESET%
-        echo       - logs\LogMotDAOTest.log
-        echo       - logs\LogMotServiceTest.log
-        echo.
+        echo %BLUE%[INFO] Logs detailles disponibles :%RESET%
+        echo   ^> logs\LogMotDAOTest.log
+        echo   ^> logs\LogMotServiceTest.log
     ) else (
         echo.
         echo %YELLOW%[AVERTISSEMENT] Certains tests ont echoue%RESET%
-        echo %CYAN%[INFO] Consultez les logs pour plus de details%RESET%
+        echo %BLUE%[INFO] Consultez les fichiers de logs%RESET%
         echo.
+
         set /p CONTINUE="Continuer malgre les erreurs ? (o/n) : "
         if /i not "!CONTINUE!"=="o" (
-            echo %RED%Arret du script.%RESET%
+            echo %RED%[ERREUR] Arret du script%RESET%
             pause
             exit /b 1
         )
-        echo.
     )
 )
+echo.
 
 REM ============================================
 REM 4. Démarrer PostgreSQL
 REM ============================================
-echo %CYAN%[INFO] Demarrage de PostgreSQL...%RESET%
+echo %CYAN%========================================%RESET%
+echo %CYAN%  PostgreSQL%RESET%
+echo %CYAN%========================================%RESET%
+echo.
+echo %BLUE%[INFO] Demarrage de PostgreSQL...%RESET%
 
-REM Vérifier si un conteneur existe déjà
-docker ps -a --format "{{.Names}}" | findstr /i "secret-dictionary-db" >nul 2>&1
+REM Vérifier si le conteneur existe déjà
+docker ps -a --format "{{.Names}}" | findstr /i "^%DOCKER_CONTAINER_NAME%$" >nul 2>nul
 if %ERRORLEVEL% EQU 0 (
-    echo %YELLOW%[INFO] Conteneur PostgreSQL deja existant%RESET%
-    docker start secret-dictionary-db >nul 2>&1
+    echo %BLUE%[INFO] Conteneur PostgreSQL existant detecte%RESET%
+
+    REM Vérifier s'il est déjà en cours d'exécution
+    docker ps --format "{{.Names}}" | findstr /i "^%DOCKER_CONTAINER_NAME%$" >nul 2>nul
     if %ERRORLEVEL% EQU 0 (
-        echo %GREEN%[OK] Conteneur redémarre%RESET%
+        echo %GREEN%[OK] PostgreSQL deja en cours d'execution%RESET%
     ) else (
-        echo %YELLOW%[INFO] Tentative avec docker-compose...%RESET%
-        where docker-compose >nul 2>nul
+        REM Redémarrer le conteneur
+        docker start %DOCKER_CONTAINER_NAME% >nul 2>&1
         if %ERRORLEVEL% EQU 0 (
-            docker-compose up -d >nul 2>&1
+            echo %GREEN%[OK] Conteneur PostgreSQL redemarre%RESET%
         ) else (
-            docker compose up -d >nul 2>&1
+            echo %YELLOW%[INFO] Tentative avec docker compose...%RESET%
+            call :start_postgres_compose
         )
     )
 ) else (
-    where docker-compose >nul 2>nul
-    if %ERRORLEVEL% EQU 0 (
-        docker-compose up -d >nul 2>&1
-    ) else (
-        docker compose up -d >nul 2>&1
-    )
+    REM Aucun conteneur n'existe, utiliser docker compose
+    call :start_postgres_compose
 )
 
-if %ERRORLEVEL% NEQ 0 (
-    echo %RED%[ERREUR] Echec du demarrage de PostgreSQL%RESET%
-    pause
-    exit /b 1
+REM Attendre que PostgreSQL soit prêt
+echo %BLUE%[INFO] Attente de PostgreSQL (%POSTGRES_WAIT_TIME% secondes)...%RESET%
+timeout /t %POSTGRES_WAIT_TIME% /nobreak >nul
+
+REM Vérifier la connexion
+docker exec %DOCKER_CONTAINER_NAME% pg_isready -U FSDM >nul 2>&1
+if %ERRORLEVEL% EQU 0 (
+    echo %GREEN%[OK] PostgreSQL pret !%RESET%
+) else (
+    echo %YELLOW%[AVERTISSEMENT] PostgreSQL demarre toujours...%RESET%
+    echo %BLUE%[INFO] L'application se lancera quand meme%RESET%
 )
-
-echo %CYAN%[INFO] Attente de PostgreSQL (10 secondes)...%RESET%
-timeout /t 10 /nobreak >nul
-
-echo %GREEN%[OK] PostgreSQL pret !%RESET%
 echo.
 
 REM ============================================
 REM 5. Lancer l'application
 REM ============================================
-echo %CYAN%[INFO] Lancement de l'application JavaFX...%RESET%
-echo %YELLOW%[INFO] Fermeture de cette fenetre = Arret de l'application%RESET%
+echo %CYAN%========================================%RESET%
+echo %CYAN%  Lancement de l'Application%RESET%
+echo %CYAN%========================================%RESET%
+echo.
+echo %BLUE%[INFO] Demarrage de l'interface JavaFX...%RESET%
 echo.
 
+REM Détecter Maven ou Maven Wrapper
 where mvn >nul 2>nul
 if %ERRORLEVEL% EQU 0 (
     mvn javafx:run
@@ -170,14 +215,16 @@ REM 6. Nettoyage après fermeture
 REM ============================================
 echo.
 echo %CYAN%========================================%RESET%
-echo %CYAN%  Application fermee%RESET%
+echo %CYAN%  Fermeture de l'Application%RESET%
 echo %CYAN%========================================%RESET%
 echo.
 
-set /p STOP="Arreter PostgreSQL ? (o/n) : "
-if /i "%STOP%"=="o" (
-    echo %CYAN%[INFO] Arret de PostgreSQL...%RESET%
+set /p STOP_POSTGRES="Arreter PostgreSQL ? (o/n) : "
 
+if /i "!STOP_POSTGRES!"=="o" (
+    echo %BLUE%[INFO] Arret de PostgreSQL...%RESET%
+
+    REM Détecter docker-compose ou docker compose
     where docker-compose >nul 2>nul
     if %ERRORLEVEL% EQU 0 (
         docker-compose down >nul 2>&1
@@ -186,17 +233,42 @@ if /i "%STOP%"=="o" (
     )
 
     if %ERRORLEVEL% EQU 0 (
-        echo %GREEN%[OK] PostgreSQL arrete%RESET%
+        echo %GREEN%[OK] PostgreSQL arrete avec succes%RESET%
     ) else (
         echo %YELLOW%[AVERTISSEMENT] Impossible d'arreter PostgreSQL automatiquement%RESET%
-        echo %CYAN%[INFO] Utilisez : docker stop secret-dictionary-db%RESET%
+        echo %BLUE%[INFO] Utilisez : docker stop %DOCKER_CONTAINER_NAME%%RESET%
     )
 ) else (
-    echo %YELLOW%[INFO] PostgreSQL reste actif en arriere-plan%RESET%
-    echo %CYAN%[INFO] Pour l'arreter : docker stop secret-dictionary-db%RESET%
+    echo %BLUE%[INFO] PostgreSQL reste actif en arriere-plan%RESET%
+    echo %BLUE%[INFO] Pour l'arreter : docker stop %DOCKER_CONTAINER_NAME%%RESET%
 )
 
 echo.
-echo %GREEN%Merci d'avoir utilise Secret Dictionary !%RESET%
+echo %CYAN%========================================%RESET%
+echo %CYAN%  Merci d'avoir utilise Secret Dictionary !%RESET%
+echo %CYAN%========================================%RESET%
 echo.
 pause
+exit /b 0
+
+REM ============================================
+REM Fonction : Démarrer PostgreSQL avec Compose
+REM ============================================
+:start_postgres_compose
+where docker-compose >nul 2>nul
+if %ERRORLEVEL% EQU 0 (
+    docker-compose up -d >nul 2>&1
+) else (
+    docker compose up -d >nul 2>&1
+)
+
+if %ERRORLEVEL% EQU 0 (
+    echo %GREEN%[OK] PostgreSQL demarre avec Docker Compose%RESET%
+) else (
+    echo %RED%[ERREUR] Echec du demarrage de PostgreSQL%RESET%
+    echo.
+    echo Verifiez que docker-compose.yml existe et que Docker fonctionne.
+    pause
+    exit /b 1
+)
+goto :eof
