@@ -38,33 +38,6 @@ import java.util.Iterator;
 import java.util.List;
 
 
-/*                        @Test Backend ( temporaire )
-public class Main {
-
-    public static void main () {
-        DataBase db = DataBase.getInstance() ; // Recuperer l'instance unique ( Singleton ) du BD
-
-        DataBaseInit dbInit = new DataBaseInit(db);  // Injction du DB dans le initialisateur du BD
-        dbInit.init() ; // 2. Lancer Flyway (chargement scripts V1, V2, V3... et executions des scripts nessecaire )
-
-        MotDAOImp motDAO = new MotDAOImp(db) ; // Injecté la DB au DAO pour quel l'utilise afin de ce connecté et executé les requetes
-
-        MotServiceImp motService = new MotServiceImp(motDAO) ; // Injecter le dao au service afin qu'il l'utilise pour manipuler les données
-
-        List<String> l = motService.getAllMots() ;
-
-        if ( l.isEmpty() ) {
-            System.out.println("Aucun mot n'est trouvée dans la DB !");
-        }
-        else {
-            Iterator<String> it = l.iterator() ;
-            while (it.hasNext()) {
-                System.out.println(it.next());
-            }
-        }
-    }
-}
-*/
 public class Main extends Application {
 
     @Override
@@ -79,8 +52,6 @@ public class Main extends Application {
 
         MotServiceImp motService = new MotServiceImp(motDAO) ; // Injecter le dao au service afin qu'il l'utilise pour manipuler les données
 
-        // ControllerFX controlleur = new ControllerFX(motService) ; jamais utilisé !!! , car le fxml creer sont propre controller avec fx:cntroller
-
         FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("/com/secret/dictionary/fxml/main-view.fxml")); // le fxml/main-view.fxml n'est pas suffisant ici car le compiler essaie de chercher dans le meme package que celui du class d'entrée ( com.secret.dictionary.app ) or .app ,n'existe pas dans ressources
 
         Parent parent = fxmlLoader.load() ; // On creer tout d'abord le root + Controller
@@ -92,7 +63,9 @@ public class Main extends Application {
         Scene scene = new Scene(parent, 800, 600); // Taille adaptée
 
         scene.getStylesheets().add(  // Liason entre css et fxml
-                Main.class.getResource("/com/secret/dictionary/styles/style.css").toExternalForm()
+                Main.class.getResource("/com/secret/dictionary/styles/style.css")
+                        .toExternalForm() // une représentation sous forme de chaîne de caractères (String) de l’URL,
+                                         // adaptée à un usage externe ( emplacement du style CSS )
         );
 
         stage.setTitle("Secret Dictionary - Gestion de Vocabulaire");
