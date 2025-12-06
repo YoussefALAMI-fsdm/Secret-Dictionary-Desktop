@@ -9,21 +9,16 @@
 package com.secret.dictionary.dao;
 
 import com.secret.dictionary.model.Mot;
-import com.secret.dictionary.util.DataBase;
 import com.secret.dictionary.utils.SimpleLogger;
 import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.*;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.Statement;
 import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 
 @TestInstance(TestInstance.Lifecycle.PER_METHOD) // Chaque méthode de test (@Test)

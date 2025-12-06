@@ -28,7 +28,7 @@ public class MotServiceImpTest {
     private MotDAO daoMock; // <- on mock l'interface
 
     private MotServiceImp service;
-    private AutoCloseable closeable;
+    private AutoCloseable closeable; // une Interface avec seul methode qui est close ( on l'utilise pour fermer proprement des ressource meme que une exeption est survenie )
 
     // ========================================
     // INITIALISATION DU LOGGER
@@ -60,7 +60,8 @@ public class MotServiceImpTest {
         logger.log("────────────────────────────────────────────────────────────");
         logger.log("🔧 Initialisation des mocks...");
 
-        closeable = MockitoAnnotations.openMocks(this);
+        closeable = MockitoAnnotations.openMocks(this); // retourne un objet qui implémente AutoCloseable ( daoMock ici )
+                                                                // ( permet de fermer proprement les ressources apres chaque test )
         service = new MotServiceImp(daoMock);
 
         logger.log("✅ Service initialisé avec DAO mocké");
@@ -69,7 +70,7 @@ public class MotServiceImpTest {
 
     @AfterEach
     public void tearDown() throws Exception {
-        if (closeable != null) {
+        if (closeable != null) { // si les ressources non encore closed on les ferme proprement en utilisons le  Autoclosable
             closeable.close();
         }
         logger.log("🔒 Mocks fermés");
@@ -94,7 +95,7 @@ public class MotServiceImpTest {
         assertEquals(3, result.size());
         assertTrue(result.contains("Chat"));
 
-        verify(daoMock, times(1)).findAllMot();
+        verify(daoMock, times(1)).findAllMot(); // verifier que findAllMots est bien appellé 1 fois
 
         logger.log("📊 Nombre de mots retournés : " + result.size());
         logger.log("✅ Test réussi");
