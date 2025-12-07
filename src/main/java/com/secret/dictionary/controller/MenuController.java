@@ -47,7 +47,7 @@ public class MenuController {
     // ========================================
     // GESTION DU MENU DÉROULANT
     // ========================================
-    @FXML
+    /*@FXML
     private void toggleMenu() {
         isMenuVisible = !isMenuVisible;
         menuCatego.setVisible(isMenuVisible);
@@ -81,7 +81,7 @@ public class MenuController {
         if (isMenuVisible) {
             toggleMenu();
         }
-    }
+    }*/
 
     @FXML
     private void onNouveauClick() {

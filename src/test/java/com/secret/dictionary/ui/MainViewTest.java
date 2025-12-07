@@ -23,9 +23,11 @@ import static org.testfx.api.FxAssert.verifyThat;
  * Tests fonctionnels de l'interface principale avec TestFX
  * Teste la navigation, les interactions utilisateur et l'intégration des composants
  */
+//Chaque test commence avec un nouvel objet test
 @TestInstance(TestInstance.Lifecycle.PER_METHOD)
 public class MainViewTest extends ApplicationTest {
 
+    //
     private static final String LOG_FILE_PATH = "logs/LogMainViewTest.log";
     private static SimpleLogger logger;
 
