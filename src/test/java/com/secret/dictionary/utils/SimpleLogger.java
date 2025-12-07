@@ -6,7 +6,8 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-public class SimpleLogger { // On creer un petit loger pour enregister les logs des test d'une facon permanante
+public class SimpleLogger { // On creer un petit loger pour
+    // enregister les logs des test d'une facon permanante
 
     private final String filePath ; // chemin pour ecris les logs
 
