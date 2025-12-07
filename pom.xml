@@ -4,40 +4,40 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.secret.dictionary</groupId>
-    <artifactId>Secret-Dictionary-Desktop</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <groupId>com.secret.dictionary</groupId> <!-- Identifiant du groupe (package principal ou organisation) -->
+    <artifactId>Secret-Dictionary-Desktop</artifactId> <!-- Nom unique du projet -->
+    <version>1.0-SNAPSHOT</version> <!-- Version du projet : SNAPSHOT signifie version de développement -->
     <name>Secret-Dictionary-Desktop</name>
 
-    <properties>
+    <properties> <!-- Les propriétés globales du projet -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <junit.version>5.10.2</junit.version>
+        <junit.version>5.10.2</junit.version>  <!-- Définit des variables réutilisables dans le POM (${javafx.version}, ${junit.version}, etc.) -->
         <javafx.version>17.0.6</javafx.version>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
+        <maven.compiler.source>17</maven.compiler.source> <!-- Version de Java pour compilation -->
+        <maven.compiler.target>17</maven.compiler.target> <!-- Version de Java pour exécution -->
     </properties>
 
     <dependencies>
         <!-- JavaFX -->
         <dependency>
             <groupId>org.openjfx</groupId>
-            <artifactId>javafx-controls</artifactId>
+            <artifactId>javafx-controls</artifactId> <!-- Fournit les composants UI (controls)  -->
             <version>${javafx.version}</version>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
-            <artifactId>javafx-fxml</artifactId>
+            <artifactId>javafx-fxml</artifactId> <!--le support FXML (définition d’UI en XML) -->
             <version>${javafx.version}</version>
         </dependency>
 
-        <!-- PostgreSQL -->
+        <!-- PostgreSQL : driver pour se connecter à la base de données -->
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <version>42.7.3</version>
         </dependency>
 
-        <!-- Flyway -->
+        <!-- Flyway : gestion des migrations de base de données -->
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-core</artifactId>
@@ -45,29 +45,21 @@
         </dependency>
         <dependency>
             <groupId>org.flywaydb</groupId>
-            <artifactId>flyway-database-postgresql</artifactId>
+            <artifactId>flyway-database-postgresql</artifactId> <!-- optimisations/compatibilité pour PostgreSQL -->
             <version>10.0.0</version>
         </dependency>
 
         <!-- JUnit -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-api</artifactId>
+            <artifactId>junit-jupiter-api</artifactId> <!-- API pour communiquer avec le engine-->
             <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-engine</artifactId>
+            <artifactId>junit-jupiter-engine</artifactId> <!-- engine du Junit5 -->
             <version>${junit.version}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <!-- Mockito -->
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-            <version>5.5.0</version>
             <scope>test</scope>
         </dependency>
 
@@ -92,12 +84,27 @@
             <version>4.0.16-alpha</version>
             <scope>test</scope>
         </dependency>
+        <!-- Mockito pour les tests unitaires avec mocks -->
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>5.8.0</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Mockito JUnit Jupiter intégration -->
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-junit-jupiter</artifactId>
+            <version>5.8.0</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
-        <plugins>
+        <plugins> <!--configuration de compilation-->
             <!-- Compiler -->
-            <plugin>
+            <plugin> <!-- Indique à Maven d’utiliser Java 17 pour la compilation et la génération des bytecodes compatibles Java 17 -->
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.13.0</version>

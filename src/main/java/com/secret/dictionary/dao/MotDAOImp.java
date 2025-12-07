@@ -8,7 +8,7 @@ import java.util.*;
 
 // DAO : Couche backend qui interagir avec la DB
 
-public class MotDAOImp implements MotDAO { // Defenir le CRUD complet ( create, findAll, findById, update, delete ) c a d permet
+public  class MotDAOImp implements MotDAO { // Defenir le CRUD complet ( create, findAll, findById, update, delete ) c a d permet
                      // l'acces et la communication avec la DB
                      // le transfer entre DTO <=> DAO ce fait dans le service ( Controller logique )
 
@@ -89,12 +89,14 @@ public class MotDAOImp implements MotDAO { // Defenir le CRUD complet ( create, 
     }
 
     @Override
-    public List<String> getListMot(String mot) throws DAOExeption {
+    public List<Mot> getListMot(String mot) throws DAOExeption {
 
-        String sql = "SELECT mot FROM mots " +
-                "WHERE mot % ? " +               // opérateur flou pg_trgm
-                "ORDER BY similarity(mot, ?) DESC " +
-                "LIMIT 10;" ;
+        // opérateur flou pg_trgm
+        String sql = """  
+                SELECT mot FROM mots 
+                WHERE mot % ? 
+                ORDER BY similarity(mot, ?) DESC;
+                """;
 
         try (PreparedStatement ps = connexion.prepareStatement(sql)) {
             ps.setString(1, mot) ;
@@ -102,9 +104,16 @@ public class MotDAOImp implements MotDAO { // Defenir le CRUD complet ( create, 
 
             ResultSet rs = ps.executeQuery();
 
-            List<String> mots = new LinkedList<>();
+            List<Mot> mots = new LinkedList<>();
             while (rs.next()) {
-                mots.add(rs.getString("mot"));
+
+                mots.add( new Mot (
+                        -1,
+                        rs.getString("mot"),
+                        null,
+                        null,
+                        null
+                ));
             }
 
             if (mots.isEmpty()) {

@@ -1,25 +1,29 @@
-version: '3.8'
+version: '3.8' # la version de Docker Compose utilisée
 
-services:
-  postgres:
-    image: postgres:16-alpine
+services: # définit les conteneurs à lancer.
+  postgres: # On definie un service nommé postgres ( pas contenuer mais service avec different configuration ( nom , port ... ) )
+    image: postgres:16-alpine # on utilise une version leger de PostgreSQL
     container_name: secret-dictionary-db
-    restart: unless-stopped
+    restart: unless-stopped # redémarre le conteneur automatiquement ( Pratique pour s’assurer que PostgreSQL reste actif )
     ports:
-      - "5432:5432"
+      - "5432:5432" # Mappe le port 5432 du conteneur vers le port 5432 de la machine hôte pour quand oeut communiquer avec via localhost:5432
     environment:
-      POSTGRES_DB: dictionary
+      POSTGRES_DB: dictionary # nom du DB
       POSTGRES_USER: FSDM
       POSTGRES_PASSWORD: IA
     volumes:
       # Persister les données entre les redémarrages
-      - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U FSDM -d dictionary"]
-      interval: 5s
-      timeout: 3s
-      retries: 5
+      - postgres_data:/var/lib/postgresql/data # nom du volume : postgres_data avec emplacement propre du docker
+    healthcheck: # On definir les tests a faire avant d'utiliser la DB par autre processus
+      test: ["CMD-SHELL", "pg_isready -U FSDM -d dictionary"] # CMD-SHELL : permet d'exécuter une commande shell à l'intérieur du conteneur
+      # pg_isready : outil PostgreSQL pour vérifier si la base est prête à accepter des connexions
+      # -U FSDM : se connecter avec l'utilisateur FSDM
+      # -d dictionary : tester la base de données 'dictionary'
+      interval: 5s # Intervalle entre deux tests de santé successifs
+      timeout: 3s # si le test prend +3s le test considirée echouée
+      retries: 5 # # Si la commande échoue 5 fois de suite, Docker marque le conteneur comme unhealthy
 
-volumes:
+volumes: # Déclaration d'un volume Docker nommé 'postgres_data' ( quand n'a l'utiliser )
   postgres_data:
-    driver: local
+    driver: local   # Spécifie le driver à utiliser pour ce volume.
+                   # 'local' signifie que les données seront stockées sur le disque local de l'hôte.
