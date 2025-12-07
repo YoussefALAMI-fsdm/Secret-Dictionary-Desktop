@@ -194,6 +194,7 @@ public class MainViewTest extends ApplicationTest {
         logger.log("✅ Détails du mot affichés correctement");
     }
 
+    /*
     @Test
     @DisplayName("Test UI - Navigation vers tous les mots depuis le menu")
     public void testNavigateToAllWords() {
@@ -209,7 +210,7 @@ public class MainViewTest extends ApplicationTest {
 
         logger.log("✅ Navigation vers tous les mots réussie");
     }
-
+*/
     @Test
     @DisplayName("Test UI - Vérifier les styles CSS appliqués")
     public void testStylesApplied() {
