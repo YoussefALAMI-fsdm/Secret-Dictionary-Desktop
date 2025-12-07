@@ -41,6 +41,9 @@ public class UpdateWordDialogController {
         //blocage d’une fenêtre
         dialog.initModality(Modality.APPLICATION_MODAL);//enum,constante
 
+        String cssURL = getClass().getResource("/com/secret/dictionary/styles/dialogs.css").toExternalForm();
+        dialog.getDialogPane().getStylesheets().add(cssURL);
+
         ButtonType btnEnregistrer = new ButtonType("Enregistrer", ButtonBar.ButtonData.OK_DONE);
         ButtonType btnAnnuler = new ButtonType("Annuler", ButtonBar.ButtonData.CANCEL_CLOSE);
         dialog.getDialogPane().getButtonTypes().addAll(btnEnregistrer, btnAnnuler);
