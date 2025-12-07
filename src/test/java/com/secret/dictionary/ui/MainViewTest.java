@@ -24,10 +24,11 @@ import static org.testfx.api.FxAssert.verifyThat;
  * Teste la navigation, les interactions utilisateur et l'intégration des composants
  */
 //Chaque test commence avec un nouvel objet test
+//JUnit crée une nouvelle instance de MainViewTest pour chaque méthode de test
 @TestInstance(TestInstance.Lifecycle.PER_METHOD)
 public class MainViewTest extends ApplicationTest {
 
-    //
+    //permet de dire où est stocké un fichier
     private static final String LOG_FILE_PATH = "logs/LogMainViewTest.log";
     private static SimpleLogger logger;
 
@@ -116,6 +117,7 @@ public class MainViewTest extends ApplicationTest {
     // ========================================
 
     @Test
+    //Annotation JUnit 5
     @DisplayName("Test UI - Vérifier que l'interface principale s'affiche")
     public void testMainViewLoads() {
         logger.log("🧪 TEST : Chargement de l'interface principale");
@@ -132,7 +134,9 @@ public class MainViewTest extends ApplicationTest {
     public void testWordListDisplays() {
         logger.log("🧪 TEST : Affichage de la liste des mots");
 
+        //wildcard
         ListView<?> wordList = lookup("#wordList").query();
+        //JUnit
         assertNotNull(wordList, "La liste des mots doit être présente");
         assertFalse(wordList.getItems().isEmpty(), "La liste ne doit pas être vide");
 
@@ -180,6 +184,7 @@ public class MainViewTest extends ApplicationTest {
     public void testWordSelection() {
         logger.log("🧪 TEST : Sélection d'un mot dans la liste");
 
+        //recuperer l'objet reel
         ListView<?> wordList = lookup("#wordList").query();
         assertFalse(wordList.getItems().isEmpty(), "La liste doit contenir des mots");
 
@@ -285,6 +290,7 @@ public class MainViewTest extends ApplicationTest {
         assertNotNull(totalCountLabel, "Le label du total doit être présent");
 
         String totalText = totalCountLabel.getText();
+        //contains : sous chaine
         assertTrue(totalText.contains("mots au total"), "Le texte doit contenir 'mots au total'");
 
         logger.log("📊 " + totalText);
