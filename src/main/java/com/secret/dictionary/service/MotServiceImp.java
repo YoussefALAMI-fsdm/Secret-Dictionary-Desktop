@@ -37,11 +37,10 @@ public class MotServiceImp implements MotService { // Le controlleur logique ( f
 
         try {
             List<String> mots = dao.findAllMot();
-            // return mots != null ? mots : Collections.emptyList();
 
             return Optional.ofNullable(mots)  // On creer un Optional<List<String>> qui est vide si mots == null
                     .orElse(Collections.emptyList())// si Optional est vide ( on a retourner Optional<List<String>> ) ,alors on la convertie en List ( vide )
-                    .stream() // Convertie la list dans le Optional a un stream
+                    .stream() // Convertie la list obtenue du Optional a un stream
                     .map(s -> s.isEmpty() ? s : s.substring(0, 1).toUpperCase() + s.substring(1))
                     .toList();
 
