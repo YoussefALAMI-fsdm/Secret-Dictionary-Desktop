@@ -98,6 +98,16 @@ public class WordListController {
         }
 
         wordList.setItems(observableMots);
+        //setItems : chaque modification de la liste met instantanément l’UI à jour
         System.out.println("✅ " + mots.size() + " mots chargés dans la liste");
     }
 }
+
+//ObservableList<MotDTO>
+//Liste de données
+//Stocke les éléments et notifie les changements
+
+
+//ListView<MotDTO>
+//Composant UI
+//Affiche les éléments à l’écran et interagit avec l’utilisateur

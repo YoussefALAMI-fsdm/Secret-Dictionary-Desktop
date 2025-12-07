@@ -137,7 +137,7 @@ public class AddWordDialogController {
         txtMot.requestFocus();
 
         Button btnAjouterNode = (Button) dialog.getDialogPane().lookupButton(btnAjouter);
-        btnAjouterNode.setDisable(true);
+        btnAjouterNode.setDisable(true); //desactive
         txtMot.textProperty().addListener((observable, oldValue, newValue) -> {
             btnAjouterNode.setDisable(newValue.trim().isEmpty());
         });

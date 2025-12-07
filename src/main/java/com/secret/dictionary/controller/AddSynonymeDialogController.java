@@ -33,6 +33,7 @@ public class AddSynonymeDialogController {
 
         // ✅ CHARGER LE CSS
         String cssURL = getClass().getResource("/com/secret/dictionary/styles/dialogs.css").toExternalForm();
+        //toExternalForm : transforme l’URL en String
         dialog.getDialogPane().getStylesheets().add(cssURL);
 
         ButtonType btnAjouter = new ButtonType("Ajouter", ButtonBar.ButtonData.OK_DONE);
