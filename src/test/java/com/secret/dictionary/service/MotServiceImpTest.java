@@ -25,7 +25,7 @@ public class MotServiceImpTest {
     private static SimpleLogger logger;
 
     @Mock
-    private MotDAO daoMock; // <- on mock l'interface
+    private MotDAO daoMock; // <- on mock l'interface ( on mock jamais les implementation réel ) => bonne pratique architecturiel ( pas technique )
 
     private MotServiceImp service;
     private AutoCloseable closeable; // une Interface avec seul methode qui est close ( on l'utilise pour fermer proprement des ressource meme que une exeption est survenie )

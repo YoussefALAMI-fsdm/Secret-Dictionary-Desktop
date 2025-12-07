@@ -1,10 +1,8 @@
 package com.secret.dictionary.ui;
 
-import com.secret.dictionary.dao.DAOExeption;
-import com.secret.dictionary.dao.MotDAOImp;
-import com.secret.dictionary.dto.MotDTO;
-import com.secret.dictionary.service.MotServiceImp;
 
+import com.secret.dictionary.dto.MotDTO;
+import com.secret.dictionary.service.MotService;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -12,31 +10,36 @@ import java.util.stream.Collectors;
  * Implémentation Fake de MotServiceImp pour les tests fonctionnels TestFX
  * Simule le comportement du service réel avec des données en mémoire
  */
-public class MotServiceFake extends MotServiceImp { // extends MotServiceImp au lieu de implements MotService
+public class MotServiceFake implements MotService { // extends MotServiceImp au lieu de implements MotService
                                                    // Car on est besion d'injecter MotServiceImp ( on peut injecter leur fils Fake )
 
     // Stockage en mémoire des mots
-    private final Map<String, MotDTO> mots = new HashMap<>();
+    private final Map<String, MotDTO> mots = new HashMap<>(); // On utilise une Hash map pour socké clé (mot) : { valeur : MotDTO associé a ce Mot }
+     // détaill technique : a cause du table de hachage on obtient une complexité de O(1) pour get , put , containsKey()
 
     // Stockage des relations synonymes (bidirectionnel)
-    private final Map<String, Set<String>> synonymes = new HashMap<>();
+    private final Map<String, Set<String>> synonymes = new HashMap<>(); // Set comme une list mais sans doublons ni ordre garantie
+
+    // On associé chaque clé ( mot ) a leur Set de synonymes / antonymes
 
     // Stockage des relations antonymes (bidirectionnel)
     private final Map<String, Set<String>> antonymes = new HashMap<>();
 
     // Flag pour simuler une erreur DB
-    private boolean simulateDbError = false;
+    private boolean simulateDbError = false; // Au debut pas de Erreur DB ( utile pas le TestController si veut simuler une erreur dans la DB )
 
     public MotServiceFake() {
-        super(null); // Passer null au DAO car on ne l'utilisera pas
-        // Initialisation avec quelques données par défaut pour les tests
-        initDefaultData();
+        // super(null); // Passer null au DAO car on ne l'utilisera pas
+
+        initDefaultData(); // Initialisation avec quelques données par défaut pour les tests
     }
 
     /**
      * Permet de simuler une erreur de base de données pour les tests
      */
-    public void setSimulateDbError(boolean simulate) {
+
+    public void setSimulateDbError(boolean simulate) { // utile pas le TestController si veut simuler une erreur dans la DB
+
         this.simulateDbError = simulate;
     }
 
@@ -44,42 +47,43 @@ public class MotServiceFake extends MotServiceImp { // extends MotServiceImp au 
      * Réinitialise toutes les données (utile entre les tests)
      */
     public void reset() {
-        mots.clear();
+        mots.clear(); // supprime tt le données stocké pour un reset propre ( test propre )
         synonymes.clear();
         antonymes.clear();
         simulateDbError = false;
-        initDefaultData();
+        initDefaultData(); // initialiser la DB simuler avec des donnée par default ( des données de test )
     }
 
     /**
      * Initialise quelques données par défaut
      */
     private void initDefaultData() {
-        addMot(new MotDTO("chat", "Petit félin domestique", "Nom", "🐱"));
-        addMot(new MotDTO("chien", "Meilleur ami de l'homme", "Nom", "🐕"));
-        addMot(new MotDTO("heureux", "Qui ressent de la joie", "Adjectif", "😊"));
-        addMot(new MotDTO("triste", "Qui ressent de la peine", "Adjectif", "😢"));
-        addMot(new MotDTO("courir", "Se déplacer rapidement", "Verbe", "🏃"));
+        addMot(new MotDTO("chat", "Petit félin domestique", "Nom", "🐱")); // on utilise la metohode
+        addMot(new MotDTO("chien", "Meilleur ami de l'homme", "Nom", "🐕")); // addMot ( si dessous )
+        addMot(new MotDTO("heureux", "Qui ressent de la joie", "Adjectif", "😊")); // qui prend un DTO
+        addMot(new MotDTO("triste", "Qui ressent de la peine", "Adjectif", "😢")); // et le stocke
+        addMot(new MotDTO("courir", "Se déplacer rapidement", "Verbe", "🏃")); // en DB fake ( HashMap )
     }
 
     @Override
     public List<String> getAllMots() {
-        return new LinkedList<>(mots.keySet());
+
+        return new LinkedList<>(mots.keySet()); // return une Set des clé du DB fake ( HashMap ) puis la convertie a une List
     }
 
     @Override
     public int addMot(MotDTO dto) {
-        if (simulateDbError) {
+        if (simulateDbError) { // addMot est impossible a cause du error DB
             return -1;
         }
 
-        if (dto == null || dto.mot() == null || dto.mot().trim().isEmpty()) {
+        if (dto == null || dto.mot() == null || dto.mot().trim().isEmpty()) { // supprime les espace inutile
             return -1;
         }
 
-        String motKey = dto.mot().toLowerCase();
+        String motKey = dto.mot().toLowerCase(); // pour stimuler le comportement d'insensible a la casse
 
-        if (mots.containsKey(motKey)) {
+        if (mots.containsKey(motKey)) { // true si ce mot exist deja ( deja present comme clé dans la HashMap )
             return 0; // Mot déjà existant
         }
 
@@ -93,12 +97,12 @@ public class MotServiceFake extends MotServiceImp { // extends MotServiceImp au 
             return null;
         }
 
-        String motKey = dto.mot().toLowerCase();
-        return mots.get(motKey);
+        String motKey = dto.mot().toLowerCase(); // car on stocke avec LowerCasse ( le rendre inssensible a la casse )
+        return mots.get(motKey); // recuperons les détaill du mot (MotDTO) via leur clé ( le mot )
     }
 
     @Override
-    public List<String> getListMot(String mot) {
+    public List<String> getListMot(String mot) { // une methode de recheche flou
         if (mot == null || mot.trim().isEmpty()) {
             return new LinkedList<>();
         }
