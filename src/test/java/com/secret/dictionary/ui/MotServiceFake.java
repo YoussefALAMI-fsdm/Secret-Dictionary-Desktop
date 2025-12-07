@@ -3,6 +3,8 @@ package com.secret.dictionary.ui;
 
 import com.secret.dictionary.dto.MotDTO;
 import com.secret.dictionary.service.MotService;
+import com.secret.dictionary.service.MotServiceImp;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -10,7 +12,7 @@ import java.util.stream.Collectors;
  * Implémentation Fake de MotServiceImp pour les tests fonctionnels TestFX
  * Simule le comportement du service réel avec des données en mémoire
  */
-public class MotServiceFake implements MotService { // extends MotServiceImp au lieu de implements MotService
+public class MotServiceFake extends MotServiceImp { // extends MotServiceImp au lieu de implements MotService
                                                    // Car on est besion d'injecter MotServiceImp ( on peut injecter leur fils Fake )
 
     // Stockage en mémoire des mots
@@ -29,7 +31,7 @@ public class MotServiceFake implements MotService { // extends MotServiceImp au 
     private boolean simulateDbError = false; // Au debut pas de Erreur DB ( utile pas le TestController si veut simuler une erreur dans la DB )
 
     public MotServiceFake() {
-        // super(null); // Passer null au DAO car on ne l'utilisera pas
+         super(null); // Passer null au DAO car on ne l'utilisera pas
 
         initDefaultData(); // Initialisation avec quelques données par défaut pour les tests
     }
