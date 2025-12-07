@@ -1,6 +1,5 @@
 package com.secret.dictionary.ui;
 
-
 import com.secret.dictionary.dto.MotDTO;
 import com.secret.dictionary.service.MotService;
 import com.secret.dictionary.service.MotServiceImp;
@@ -13,11 +12,11 @@ import java.util.stream.Collectors;
  * Simule le comportement du service réel avec des données en mémoire
  */
 public class MotServiceFake extends MotServiceImp { // extends MotServiceImp au lieu de implements MotService
-                                                   // Car on est besion d'injecter MotServiceImp ( on peut injecter leur fils Fake )
+    // Car on est besion d'injecter MotServiceImp ( on peut injecter leur fils Fake )
 
     // Stockage en mémoire des mots
     private final Map<String, MotDTO> mots = new HashMap<>(); // On utilise une Hash map pour socké clé (mot) : { valeur : MotDTO associé a ce Mot }
-     // détaill technique : a cause du table de hachage on obtient une complexité de O(1) pour get , put , containsKey()
+    // détaill technique : a cause du table de hachage on obtient une complexité de O(1) pour get , put , containsKey()
 
     // Stockage des relations synonymes (bidirectionnel)
     private final Map<String, Set<String>> synonymes = new HashMap<>(); // Set comme une list mais sans doublons ni ordre garantie
@@ -31,7 +30,7 @@ public class MotServiceFake extends MotServiceImp { // extends MotServiceImp au 
     private boolean simulateDbError = false; // Au debut pas de Erreur DB ( utile pas le TestController si veut simuler une erreur dans la DB )
 
     public MotServiceFake() {
-         super(null); // Passer null au DAO car on ne l'utilisera pas
+        super(null); // Passer null au DAO car on ne l'utilisera pas
 
         initDefaultData(); // Initialisation avec quelques données par défaut pour les tests
     }
@@ -39,9 +38,7 @@ public class MotServiceFake extends MotServiceImp { // extends MotServiceImp au 
     /**
      * Permet de simuler une erreur de base de données pour les tests
      */
-
     public void setSimulateDbError(boolean simulate) { // utile pas le TestController si veut simuler une erreur dans la DB
-
         this.simulateDbError = simulate;
     }
 
@@ -69,7 +66,6 @@ public class MotServiceFake extends MotServiceImp { // extends MotServiceImp au 
 
     @Override
     public List<String> getAllMots() {
-
         return new LinkedList<>(mots.keySet()); // return une Set des clé du DB fake ( HashMap ) puis la convertie a une List
     }
 
@@ -112,9 +108,9 @@ public class MotServiceFake extends MotServiceImp { // extends MotServiceImp au 
         String searchTerm = mot.toLowerCase();
 
         return mots.keySet().stream()
-                .filter(m -> m.contains(searchTerm))
+                .filter(m -> m.contains(searchTerm)) // filter par %serachTerm% ( inspirée de DB réel )
                 .sorted()
-                .collect(Collectors.toCollection(LinkedList::new));
+                .collect(Collectors.toCollection(LinkedList::new)); // les converitie en LinkedList
     }
 
     @Override
@@ -143,47 +139,12 @@ public class MotServiceFake extends MotServiceImp { // extends MotServiceImp au 
                 return false;
             }
 
-            // Mettre à jour les relations
-            updateRelationsForRename(ancienKey, nouveauKey);
-
             // Supprimer l'ancien et ajouter le nouveau
             mots.remove(ancienKey);
         }
 
         mots.put(nouveauKey, nouveau);
         return true;
-    }
-
-    private void updateRelationsForRename(String oldKey, String newKey) {
-        // Mettre à jour les synonymes
-        if (synonymes.containsKey(oldKey)) {
-            Set<String> syns = synonymes.remove(oldKey);
-            synonymes.put(newKey, syns);
-
-            // Mettre à jour les références inverses
-            for (String syn : syns) {
-                Set<String> inverseSyns = synonymes.get(syn);
-                if (inverseSyns != null) {
-                    inverseSyns.remove(oldKey);
-                    inverseSyns.add(newKey);
-                }
-            }
-        }
-
-        // Mettre à jour les antonymes
-        if (antonymes.containsKey(oldKey)) {
-            Set<String> ants = antonymes.remove(oldKey);
-            antonymes.put(newKey, ants);
-
-            // Mettre à jour les références inverses
-            for (String ant : ants) {
-                Set<String> inverseAnts = antonymes.get(ant);
-                if (inverseAnts != null) {
-                    inverseAnts.remove(oldKey);
-                    inverseAnts.add(newKey);
-                }
-            }
-        }
     }
 
     @Override
@@ -284,22 +245,18 @@ public class MotServiceFake extends MotServiceImp { // extends MotServiceImp au 
 
     @Override
     public Map<String, Integer> getMotCountParCategorie() {
-        Map<String, Integer> counts = new HashMap<>();
+
+        Map<String, Integer> counts = new HashMap<>(); // HashMap de Categorie : nbr occurence
 
         for (MotDTO dto : mots.values()) {
             if (dto.categorie() != null) {
-                counts.merge(dto.categorie(), 1, Integer::sum);
+                counts.merge(dto.categorie(), 1, Integer::sum); /* merge est une méthode pratique pour ajouter ou mettre à jour un compteur :
+                                    Si la catégorie n’existe pas encore dans counts, elle est ajoutée avec la valeur 1.
+            Si la catégorie existe déjà, la valeur actuelle est mise à jour en additionnant 1 (grâce à Integer::sum).
+            */
             }
         }
 
-        // Trier par ordre alphabétique des catégories
-        return counts.entrySet().stream()
-                .sorted(Map.Entry.comparingByKey())
-                .collect(Collectors.toMap(
-                        Map.Entry::getKey,
-                        Map.Entry::getValue,
-                        (e1, e2) -> e1,
-                        LinkedHashMap::new
-                ));
+        return counts ;
     }
 }
