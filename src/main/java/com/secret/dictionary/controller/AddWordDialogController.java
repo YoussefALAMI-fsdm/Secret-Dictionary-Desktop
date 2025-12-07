@@ -36,6 +36,9 @@ public class AddWordDialogController {
         dialog.setTitle("➕ Ajouter un nouveau mot");
         dialog.initModality(Modality.APPLICATION_MODAL);
 
+        String cssURL = getClass().getResource("/com/secret/dictionary/styles/dialogs.css").toExternalForm();
+        dialog.getDialogPane().getStylesheets().add(cssURL);
+
         ButtonType btnAjouter = new ButtonType("Ajouter", ButtonBar.ButtonData.OK_DONE);
         ButtonType btnAnnuler = new ButtonType("Annuler", ButtonBar.ButtonData.CANCEL_CLOSE);
         dialog.getDialogPane().getButtonTypes().addAll(btnAjouter, btnAnnuler);
@@ -93,10 +96,13 @@ public class AddWordDialogController {
         ComboBox<String> cmbCategorie = new ComboBox<>();
         cmbCategorie.getItems().addAll(CATEGORIES);
         cmbCategorie.setValue("General");
+        cmbCategorie.getStyleClass().add("combo-box");
         cmbCategorie.setStyle(
                 "-fx-background-color: #16213e; " +
+                        "-fx-prompt-text-fill: #888; " +
                         "-fx-text-fill: white; " +
                         "-fx-font-size: 14px; " +
+                        "-fx-fill: white;" +
                         "-fx-background-radius: 5;"
         );
         cmbCategorie.setPrefWidth(400);

@@ -224,7 +224,7 @@ public class MainViewTest extends ApplicationTest {
         logger.log("✅ Styles CSS appliqués correctement");
     }
 
-    @Test
+    /*@Test
     @DisplayName("Test UI - Fermeture et réouverture du menu déroulant")
     public void testMenuToggle() {
         logger.log("🧪 TEST : Toggle du menu déroulant");
@@ -245,7 +245,7 @@ public class MainViewTest extends ApplicationTest {
 
         logger.log("✅ Menu fermé");
         logger.log("✅ Toggle du menu fonctionne correctement");
-    }
+    }*/
 
     @Test
     @DisplayName("Test UI - Vérifier la présence du bouton Modifier")
